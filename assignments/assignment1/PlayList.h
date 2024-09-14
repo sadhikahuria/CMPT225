@@ -1,4 +1,9 @@
-// Write your name and date here
+/*
+    Author: Sadhika Huria
+    CMPT 225 D200 Fall 2024
+    Date: Sep 14, 2024
+*/
+
 #pragma once
 #include "Song.h"
 

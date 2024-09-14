@@ -1,7 +1,14 @@
-// Write your name and date here
+/*
+    Author: Sadhika Huria
+    CMPT 225 D200 Fall 2024
+    Date: Sep 14, 2024
+*/
+
+
 #include "PlayList.h"
 #include "Song.h"
 #include <iostream>
+#include <utility>
 
 // PlayList method implementations go here
 
@@ -41,16 +48,14 @@ PlayList::PlayList(const PlayList& pl){
 PlayList::~PlayList(){
     if(head != nullptr){
         PlayListNode *current = head;
-        PlayListNode *nextnode;
 
         while( current != nullptr ){
-            nextnode = current-> next;
+            head = head-> next;
             delete current;
-            current = nextnode;
+            current = head;
         }
         head = nullptr;
-        current = nullptr;
-        nextnode = nullptr;
+
         num_songs = 0;
     }
 }
@@ -60,7 +65,7 @@ PlayList::~PlayList(){
 // PARAM: pos - 0-based insertion position
 //        sng - Song to be inserted pos
 void PlayList::insert(Song sng, unsigned int pos){
-    if ( (0 <= pos) && (pos < num_songs)){
+    if ( (0 <= pos) && (pos <= num_songs)){
         
         PlayListNode *newnode = new PlayListNode(sng);
         
@@ -71,17 +76,17 @@ void PlayList::insert(Song sng, unsigned int pos){
         } 
         else {
 
-            PlayListNode *track = head -> next;
-            PlayListNode *previous = head;
+            PlayListNode *track = head;
             for (unsigned int i = 0; i < pos-1; i++){
                 track = track -> next;
-                previous = previous->next;
             }
 
-            newnode -> next = track;
-            previous -> next = newnode;
+            newnode -> next = track-> next;
+            track -> next = newnode;
             num_songs++;
         }
+    } else {
+        cout << "invalid position" << endl;
     }
 }
 
@@ -89,7 +94,7 @@ void PlayList::insert(Song sng, unsigned int pos){
 // PARAM: pos - 0-based position of element to be removed and returned
 // POST: Song at position pos is removed and returned
 Song PlayList::remove(unsigned int pos){
-    if ( (0 <= pos) && ( pos > num_songs)){
+    //if ( (0 <= pos) && ( pos < num_songs)){
         PlayListNode *temp = head;
         if (pos == 0){
             head = head -> next;
@@ -113,10 +118,10 @@ Song PlayList::remove(unsigned int pos){
             num_songs--;
             return mainsong;
         }
-    } 
-    else {
-        cout << "invalid position\n" << endl;
-    }
+    //} 
+    //else {
+      //  cout << "invalid position\n" << endl;
+    //}
 }
 
 // PRE: 0 <= pos1, pos2 <= length of list-1
@@ -127,61 +132,45 @@ void PlayList::swap(unsigned int pos1, unsigned int pos2){
         if (pos1 == pos2){
             return;
         }
-        PlayListNode *nodepos1 = head;
-        PlayListNode *pos1_previous;
-        PlayListNode *nodepos2 = head;
-        PlayListNode *pos2_previous;
 
-        if ( pos1 != 0){
-            pos1_previous = nodepos1;
-            nodepos1 = nodepos1 -> next;
-            for ( int i = 0; i < pos1 -1; i++)
-            {
-                pos1_previous = pos1_previous -> next;
-                nodepos1 = nodepos1 -> next;
-            }
+        if (pos1 > pos2) std::swap(pos1, pos2);
+
+        PlayListNode *node1 = head;
+        PlayListNode *pos1_previous = nullptr;
+        PlayListNode *node2 = head;
+        PlayListNode *pos2_previous = nullptr;
+
+        for ( int i = 0; i < pos1; i++)
+        {
+            pos1_previous = node1;
+            node1 = node1 -> next;
         }
 
         
-        if ( pos2 != 0){
-            pos2_previous = nodepos2;
-            nodepos2 = nodepos2 -> next;
-            for ( int i = 0; i < pos2 -1; i++)
-            {
-                pos2_previous = pos2_previous -> next;
-                nodepos2 = nodepos2 -> next;
-            }
+        for ( int i = 0; i < pos2; i++)
+        {
+            pos2_previous = node2;
+            node2 = node2 -> next;
+        }
+    
+        PlayListNode *temp = node2 -> next;
+
+        if (node1 == pos2_previous)
+        {
+            node2 -> next = node1;
+        } 
+        else {
+            node2 -> next = node1 -> next;
+            pos2_previous -> next = node1;
+        }
+        node1 -> next = temp;
+
+        if (pos1_previous != nullptr){
+            pos1_previous -> next = node2;
+        } else {
+            head = node2;
         }
 
-        if (pos1 == 0){
-            PlayListNode *temp = nodepos2;
-            nodepos1 -> next = nodepos2 -> next;
-            temp -> next = nodepos1 -> next;
-            pos2_previous -> next = nodepos1;
-            head = nodepos2;
-
-            return;
-
-        }
-
-        
-        if (pos2 == 0){
-            PlayListNode *temp = nodepos1;
-            nodepos2 -> next = nodepos1 -> next;
-            temp -> next = nodepos2 -> next;
-            pos1_previous -> next = nodepos2;
-            head = nodepos1;
-
-            return;
-
-        }
-
-        PlayListNode *temp = nodepos2;
-        nodepos1 -> next = nodepos2 -> next;
-        temp -> next = nodepos1 -> next;
-
-        pos1_previous-> next = nodepos2;
-        pos2_previous -> next = nodepos1;
 
         return;
         
@@ -197,7 +186,7 @@ void PlayList::swap(unsigned int pos1, unsigned int pos2){
 // PARAM: pos - 0-based position of element to be returned
 // POST: returns the Song at position pos
 Song PlayList::get(unsigned int pos) const{
-    if ( (0 <= pos) && ( pos > num_songs)){
+    //if ( (0 <= pos) && ( pos < num_songs)){
         PlayListNode *temp = head;
         if (pos == 0){
             Song mainsong = temp -> song;
@@ -211,10 +200,10 @@ Song PlayList::get(unsigned int pos) const{
             Song mainsong = temp -> song;
             return mainsong;
         }
-    } 
-    else {
-        cout << "invalid position\n" << endl;
-    }
+    //} 
+   // else {
+     //   cout << "invalid position\n" << endl;
+    //}
 }
 
 // POST: returns the number of songs in the PlayList
