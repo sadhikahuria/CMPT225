@@ -10,10 +10,6 @@
 #include <iostream>
 #include <utility>
 
-// PlayList method implementations go here
-
-// Play List definitions
-
 using namespace std;
 
 // Constructors and destructor
