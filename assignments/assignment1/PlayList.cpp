@@ -184,18 +184,13 @@ void PlayList::swap(unsigned int pos1, unsigned int pos2){
 Song PlayList::get(unsigned int pos) const{
     //if ( (0 <= pos) && ( pos < num_songs)){
         PlayListNode *temp = head;
-        if (pos == 0){
-            Song mainsong = temp -> song;
-            return mainsong;
-        }
-        else
-        {   
-            for( int i = 0; i < pos; i++){
-                temp = temp -> next;
-            }   
-            Song mainsong = temp -> song;
-            return mainsong;
-        }
+
+        for( int i = 0; i < pos; i++){
+            temp = temp -> next;
+        }   
+        Song mainsong = temp -> song;
+        return mainsong;
+        
     //} 
    // else {
      //   cout << "invalid position\n" << endl;
