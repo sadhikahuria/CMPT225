@@ -31,6 +31,16 @@ Date: Sep 14, 2024
 #include <sstream>
 
 using namespace std;
+int if_valid(const PlayList& pl, unsigned int pos){
+    if ( ( pos >= 0) && (pos <= pl.size() +1 )) {
+        return 1;
+    }
+    else {
+        cout << "Invalid Position.\n"<< endl;
+        return 0;
+    }
+}
+
 
 int main(){
 
@@ -55,23 +65,26 @@ int main(){
         if (input == 1)
         {
             cout << "Song name: ";
-            cin >> name;
+            cin.ignore();
+            getline(cin, name);
 
             cout << "Artist: ";
-            cin >> artist;
+            getline(cin, artist);
 
             cout << "Length: ";
             cin >> length;
 
-            cout << "Position (1";
-            if (myplaylist.size() == 0 ){
-                cout << "): ";
-            }
-            else 
-            {
-                cout << " to " << myplaylist.size()+1 << "): ";
-            }
-            cin >> pos;
+            do{
+                cout << "Position (1";
+                if (myplaylist.size() == 0 ){
+                    cout << "): ";
+                }
+                else 
+                {
+                    cout << " to " << myplaylist.size()+1 << "): ";
+                }
+                cin >> pos;
+            } while (!if_valid(myplaylist, pos));
 
             Song newsong(name, artist, length);
             myplaylist.insert(newsong, pos-1);
@@ -81,15 +94,17 @@ int main(){
 
         else if (input == 2)
         {
-            cout << "Position (1";
-            if (myplaylist.size() == 0 ){
-                cout << "):";
-            }
-            else 
-            {
-                cout << " to " << myplaylist.size() << "):";
-            }
-            cin >> pos;
+            do{
+                cout << "Position (1";
+                if (myplaylist.size() == 0 ){
+                    cout << "):";
+                }
+                else 
+                {
+                    cout << " to " << myplaylist.size() << "):";
+                }
+                cin >> pos;
+            } while (!if_valid(myplaylist, pos));
 
             Song remove = myplaylist.remove(pos-1);
             cout << "You removed " << remove.getName() << " from the play list." << endl;
@@ -100,25 +115,29 @@ int main(){
         {
             int pos2;
 
-            cout << "Swap song at position (1";
-            if (myplaylist.size() == 0 ){
-                cout << "):";
-            }
-            else 
-            {
-                cout << " to " << myplaylist.size() << "):";
-            }
-            cin >> pos;
+            do{
+                cout << "Swap song at position (1";
+                if (myplaylist.size() == 0 ){
+                    cout << "):";
+                }
+                else 
+                {
+                    cout << " to " << myplaylist.size() << "):";
+                }
+                cin >> pos;
+            } while (!if_valid(myplaylist, pos));
 
-            cout << "with the song at position (1";
-            if (myplaylist.size() == 0 ){
-                cout << "):";
-            }
-            else 
-            {
-                cout << " to " << myplaylist.size() << "):";
-            }
-            cin >> pos2;
+            do{
+                cout << "with the song at position (1";
+                if (myplaylist.size() == 0 ){
+                    cout << "):";
+                }
+                else 
+                {
+                    cout << " to " << myplaylist.size() << "):";
+                }
+                cin >> pos2;
+            } while (!if_valid(myplaylist, pos));
 
             myplaylist.swap(pos-1, pos2-1);
             cout << "You swapped the songs at positions " << pos << " and " << pos2 << endl;
@@ -141,6 +160,7 @@ int main(){
         }
 
     }
+
 
     return 0;
 }
