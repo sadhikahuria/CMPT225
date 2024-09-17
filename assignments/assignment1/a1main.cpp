@@ -6,22 +6,66 @@ Date: Sep 14, 2024
 
     Write O(n) worst case 
     
-    PlayList
-        default constructor
-        destructor
-        copy constructor
-        overloaded assignement operator
-        insert
-        remove
-        get
-        swap
-        size
+    PlayList:
 
-    Main function commands
-        enter a song
-        remove a song
-        swap two songs
-        print all the songs
+        default constructor             O(1)
+            intializing head and
+            count, constant time
+
+        destructor                      O(n)
+            deleting all the nodes, 
+            traversing, O(n) time
+
+        copy constructor                O(n)
+            coping all the nodes, 
+            traversing, O(n) time
+
+        overloaded operator             O(n)
+            combination of destuctor 
+            and copy constructor 
+            adding the two, o(n) time
+
+        insert                          O(n)
+            traversing through the 
+            worst position, n, 
+            O(n) time
+
+        remove                          O(n)
+            removing the worst position, 
+            n, O(n) time 
+
+        get                             O(n)
+            similar to remove, 
+            traversing through the list
+            O(n) time
+
+        swap                            O(n)
+            traversing through the list
+            twice, O(n) time
+
+        size                            O(1)
+            returning an unsigned 
+            int variable, constant time
+
+
+    Main function commands:
+
+        enter a song                    O(n)
+            using the insert funciton
+            O(n) time
+
+        remove a song                   O(n)
+            using the remove function
+            O(n) time
+
+        swap two songs                  O(n)
+            using the swap function
+            O(n) time
+
+        print all the songs             O(n)
+            traversing through the
+            list to print each song
+            O(n) time
 */
 
 
@@ -33,8 +77,7 @@ Date: Sep 14, 2024
 using namespace std;
 
 
-
-
+// function to valididate position
 int if_valid(const PlayList& pl, unsigned int pos){
     if ( ( pos >= 0) && (pos <= pl.size() +1 )) {
         return 1;
@@ -50,7 +93,7 @@ int main(){
 
     int input;
     PlayList myplaylist;
-    
+
     cout << "Menu:\n"
         << "\t1 - Enter the song in the play list at a given position\n"
         << "\t2 - Remove a song from the play list at a given position\n"
@@ -59,6 +102,7 @@ int main(){
         << "\t5 - Quit" << endl;
 
     while (true){
+
         cout << "\nEnter 1 (insert), 2 (remove), 3 (swap), 4 (print), 5 (quit): ";
         cin >> input;
         string name;
@@ -66,7 +110,7 @@ int main(){
 	    int length;
         int pos;
 
-        if (input == 1)
+        if (input == 1)                 // inserting
         {
             cout << "Song name: ";
             cin.ignore();
@@ -96,7 +140,8 @@ int main(){
             cout << "You entered " << name << " at position " << pos << " in the play list" << endl;
         } 
 
-        else if (input == 2)
+
+        else if (input == 2)        // removing
         {
             do{
                 cout << "Position (1";
@@ -115,7 +160,8 @@ int main(){
 
         }
 
-        else if ( input == 3)
+
+        else if ( input == 3)       // swaping
         {
             int pos2;
 
@@ -148,7 +194,8 @@ int main(){
             
         } 
 
-        else if (input == 4)
+
+        else if (input == 4)        // printing
         {
             for (int i = 1; i <= myplaylist.size(); i++){
                 Song newsong = myplaylist.get(i-1);
@@ -158,13 +205,13 @@ int main(){
             cout << "There are "<< myplaylist.size() << " songs in the play list." << endl;
         }
 
-        else if (input == 5) {
+
+        else if (input == 5) {      // to quit
             cout << "You have chosen to quit the program.\n" << endl;
             break;
         }
         
     }
-
 
     return 0;
 }

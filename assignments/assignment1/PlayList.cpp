@@ -12,75 +12,72 @@
 
 using namespace std;
 
-// Constructors and destructor
-// POST: head of list is set to nullptr
 PlayList::PlayList(){
     head = nullptr;
     num_songs = 0;
 }
 
-// PARAM: pl - PlayList to be copied
-// POST: new PlayList is created that is a deep copy of pl
 PlayList::PlayList(const PlayList& pl){
 
-    if (pl.head == nullptr){
+    if (pl.head == nullptr){    // checking if the list is empty
         head = nullptr;
         num_songs = 0;
     } 
-    else {
-        head = new PlayListNode(pl.head -> song);
+    else {                      
+        head = new PlayListNode(pl.head -> song);  // allocate memory for head
         PlayListNode *current = head;
         PlayListNode *plcurrent = pl.head;
 
-        while( plcurrent != nullptr ){
+        while( plcurrent != nullptr ){             // copy the data
             plcurrent = plcurrent -> next;
             current -> next = new PlayListNode(plcurrent -> song);
             current = current -> next;
         }
-        num_songs = pl.num_songs;
+        num_songs = pl.num_songs;       // intialize size
     }
 }
 
-// POST: dynamic memory associated with object is deallocated
+
 PlayList::~PlayList(){
     if(head != nullptr){
-        PlayListNode *current = head;
+        PlayListNode *current = head;       // anchoring
 
-        while( current != nullptr ){
+        while( current != nullptr ){        // traversing
             head = head-> next;
-            delete current;
+            delete current;                 // deallocating
             current = head;
         }
         head = nullptr;
 
-        num_songs = 0;
+        num_songs = 0;                      // declaring empty list
     }
 }
 
 PlayList& PlayList::operator=(const PlayList &pl){
-    if (this != &pl){
+    if (this != &pl){                       // if not self assignmnent
 
-        while(head != nullptr){
+        while(head != nullptr){             // deleting
             PlayListNode *temp = head;
             head = head -> next;
             delete temp;
         }
-        if (pl.head == nullptr){
+
+        if (pl.head == nullptr){            // if list is empty
         head = nullptr;
         num_songs = 0;
         } 
-        else {
+        else {                              
             head = new PlayListNode(pl.head -> song);
-            PlayListNode *current = head;
-            PlayListNode *plcurrent = pl.head;
+            PlayListNode *current = head;       //anchoring new list
+            PlayListNode *plcurrent = pl.head;  //anchoring old list
 
-            while( plcurrent != nullptr ){
+            while( plcurrent != nullptr ){      //traversing
                 plcurrent = plcurrent -> next;
                 current -> next = new PlayListNode(plcurrent -> song);
                 current = current -> next;
             }
         }
-        num_songs = pl.num_songs;
+        num_songs = pl.num_songs;               // intializing size
 
 
     }
@@ -89,112 +86,112 @@ PlayList& PlayList::operator=(const PlayList &pl){
 } 
 
 
-// Mutators
-// PRE: 0 <= i <= length of list
-// PARAM: pos - 0-based insertion position
-//        sng - Song to be inserted pos
+
 void PlayList::insert(Song sng, unsigned int pos){
-    if ( (0 <= pos) && (pos <= num_songs)){
+    if ( (0 <= pos) && (pos <= num_songs)){             // validing the position
+
+        PlayListNode *newnode = new PlayListNode(sng);  // creating the node for the new song
         
-        PlayListNode *newnode = new PlayListNode(sng);
-        
-        if( pos == 0){
+        if( pos == 0){                                  // checking if the new node needs to be head
             newnode -> next = head;
             head = newnode;
             num_songs++;
         } 
         else {
 
-            PlayListNode *track = head;
-            for (unsigned int i = 0; i < pos-1; i++){
+            PlayListNode *track = head;                 // anchoring
+            for (unsigned int i = 0; i < pos-1; i++){   // traversing
                 track = track -> next;
             }
 
-            newnode -> next = track-> next;
+            newnode -> next = track-> next;             // inserting the node
             track -> next = newnode;
             num_songs++;
         }
+
+        return;
     } else {
-        cout << "invalid position" << endl;
+
+        return;                                         // if position not valid
     }
 }
 
-// PRE: 0 <= pos <= length of list-1
-// PARAM: pos - 0-based position of element to be removed and returned
-// POST: Song at position pos is removed and returned
+
 Song PlayList::remove(unsigned int pos){
-    //if ( (0 <= pos) && ( pos < num_songs)){
-        PlayListNode *temp = head;
-        if (pos == 0){
-            head = head -> next;
-            Song mainsong = temp -> song;
-            delete temp;
+    if ( (0 <= pos) && ( pos < num_songs)){             // checking position parameters
+
+        PlayListNode *temp = head;                      // anchoring
+
+        if (pos == 0){                                  // if removing head
+            head = head -> next;                        // reintialzing the head
+            Song mainsong = temp -> song;               
+            delete temp;                                // deallocating memory for the node
             temp = nullptr;
-            num_songs--;
+            num_songs--;                                // updating size
             return mainsong;
         }
         else
         {   
-            PlayListNode *previous = temp;
+            PlayListNode *previous = temp;              // anchoring
             temp = temp -> next;
-            for( unsigned int i = 0; i < pos -1; i++){
+            for( unsigned int i = 0; i < pos -1; i++){  //traversing
                 temp = temp -> next;
                 previous = previous -> next;
             }   
             Song mainsong = temp -> song;
             previous -> next = temp -> next;
-            delete temp;
+            delete temp;                                // deallocating
             num_songs--;
-            return mainsong;
+            return mainsong;                            // returning song
         }
-    //} 
-    //else {
-      //  cout << "invalid position\n" << endl;
-    //}
+    } 
+    else {
+        cout << "invalid position\n" << endl;
+        throw out_of_range("Invalid position");         // if position not valid, throw
+    }
 }
 
-// PRE: 0 <= pos1, pos2 <= length of list-1
-// PARAM: pos1, pos2 - 0-based positions of elements to be swapped
-// POST: Songs at positions pos1 and pos2 are swapped
+
 void PlayList::swap(unsigned int pos1, unsigned int pos2){
-    if ( ( pos1 >= 0) && ( pos2 >= 0) && (pos2 < num_songs) && (pos1 < num_songs) ){
-        if (pos1 == pos2){
+    if ( ( pos1 >= 0) && ( pos2 >= 0) && (pos2 < num_songs) && (pos1 < num_songs) ){    // validing the parameters 
+
+        if (pos1 == pos2){                      // if both positions are the same, return
             return;
         }
 
-        if (pos1 > pos2) std::swap(pos1, pos2);
+        if (pos1 > pos2) std::swap(pos1, pos2);         // keeping position 2 greater than position 1 for simplicity
 
-        PlayListNode *node1 = head;
+        PlayListNode *node1 = head;                     //anchoring
         PlayListNode *pos1_previous = nullptr;
-        PlayListNode *node2 = head;
+        PlayListNode *node2 = head;                     //anchoring
         PlayListNode *pos2_previous = nullptr;
 
-        for ( unsigned int i = 0; i < pos1; i++)
+        for ( unsigned int i = 0; i < pos1; i++)        // traversing
         {
             pos1_previous = node1;
             node1 = node1 -> next;
         }
 
         
-        for ( unsigned int i = 0; i < pos2; i++)
+        for ( unsigned int i = 0; i < pos2; i++)        // traversing
         {
             pos2_previous = node2;
             node2 = node2 -> next;
         }
     
-        PlayListNode *temp = node2 -> next;
+        PlayListNode *temp = node2 -> next;             // storing a node, so it doesn't get lost
 
-        if (node1 == pos2_previous)
+        if (node1 == pos2_previous)                     // if the positions are back to back 
         {
             node2 -> next = node1;
         } 
-        else {
+        else {                                          // if positions are not back to back
             node2 -> next = node1 -> next;
             pos2_previous -> next = node1;
         }
         node1 -> next = temp;
 
-        if (pos1_previous != nullptr){
+        if (pos1_previous != nullptr){                  // if position 1 is not head
             pos1_previous -> next = node2;
         } else {
             head = node2;
@@ -205,33 +202,33 @@ void PlayList::swap(unsigned int pos1, unsigned int pos2){
         
     }
     else {
-        cout << "invalid positions" << endl;
+        cout << "invalid positions" << endl;            // if entered invalid positions
         return;
     }
 }
 
-// Accessor
-// PRE: 0 <= pos <= length of list-1
-// PARAM: pos - 0-based position of element to be returned
-// POST: returns the Song at position pos
-Song PlayList::get(unsigned int pos) const{
-    //if ( (0 <= pos) && ( pos < num_songs)){
-        PlayListNode *temp = head;
 
-        for( unsigned int i = 0; i < pos; i++){
+Song PlayList::get(unsigned int pos) const{
+
+    if ( (0 <= pos) && ( pos < num_songs) ) {           // validing position
+
+        PlayListNode *temp = head;                      // anchoring
+
+        for( unsigned int i = 0; i < pos; i++){         //traversing
             temp = temp -> next;
         }   
-        Song mainsong = temp -> song;
+        Song mainsong = temp -> song;                   // storing and returning song
         return mainsong;
         
-    //} 
-   // else {
-     //   cout << "invalid position\n" << endl;
-    //}
+    } 
+    else {
+        cout << "invalid position\n" << endl;           // if position invalid
+        throw out_of_range("Invalid position");
+    }
 }
 
-// POST: returns the number of songs in the PlayList
+
 unsigned int PlayList::size() const{
-    return num_songs;
+    return num_songs;                                   // returing private variable 
 }
 
