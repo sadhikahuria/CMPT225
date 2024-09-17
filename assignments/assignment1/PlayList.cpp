@@ -137,7 +137,7 @@ Song PlayList::remove(unsigned int pos){
         {   
             PlayListNode *previous = temp;
             temp = temp -> next;
-            for( int i = 0; i < pos -1; i++){
+            for( unsigned int i = 0; i < pos -1; i++){
                 temp = temp -> next;
                 previous = previous -> next;
             }   
@@ -169,14 +169,14 @@ void PlayList::swap(unsigned int pos1, unsigned int pos2){
         PlayListNode *node2 = head;
         PlayListNode *pos2_previous = nullptr;
 
-        for ( int i = 0; i < pos1; i++)
+        for ( unsigned int i = 0; i < pos1; i++)
         {
             pos1_previous = node1;
             node1 = node1 -> next;
         }
 
         
-        for ( int i = 0; i < pos2; i++)
+        for ( unsigned int i = 0; i < pos2; i++)
         {
             pos2_previous = node2;
             node2 = node2 -> next;
@@ -218,7 +218,7 @@ Song PlayList::get(unsigned int pos) const{
     //if ( (0 <= pos) && ( pos < num_songs)){
         PlayListNode *temp = head;
 
-        for( int i = 0; i < pos; i++){
+        for( unsigned int i = 0; i < pos; i++){
             temp = temp -> next;
         }   
         Song mainsong = temp -> song;
