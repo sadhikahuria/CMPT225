@@ -31,6 +31,10 @@ Date: Sep 14, 2024
 #include <sstream>
 
 using namespace std;
+
+
+
+
 int if_valid(const PlayList& pl, unsigned int pos){
     if ( ( pos >= 0) && (pos <= pl.size() +1 )) {
         return 1;
@@ -130,11 +134,11 @@ int main(){
             do{
                 cout << "with the song at position (1";
                 if (myplaylist.size() == 0 ){
-                    cout << "):";
+                    cout << "): ";
                 }
                 else 
                 {
-                    cout << " to " << myplaylist.size() << "):";
+                    cout << " to " << myplaylist.size() << "): ";
                 }
                 cin >> pos2;
             } while (!if_valid(myplaylist, pos));
@@ -158,7 +162,7 @@ int main(){
             cout << "You have chosen to quit the program.\n" << endl;
             break;
         }
-
+        
     }
 
 

@@ -1,0 +1,15 @@
+final: a1main.o PlayList.o Song.o
+	g++ -o a1main.o PlayList.o Song.o
+
+a1main.o: a1main.cpp PlayList.h Song.h
+	g++ -c a1main.cpp 
+
+PlayList.o: PlayList.cpp PlayList.h Song.h
+	g++ -c PlayList.cpp 
+
+Song.o: Song.cpp Song.h
+	g++ -c Song.cpp 
+
+.PHONY: clear
+clear:
+	rm -f*.o final

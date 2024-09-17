@@ -32,11 +32,12 @@ PlayList::PlayList(const PlayList& pl){
         PlayListNode *current = head;
         PlayListNode *plcurrent = pl.head;
 
-        while( (plcurrent -> next) != nullptr ){
+        while( plcurrent != nullptr ){
             plcurrent = plcurrent -> next;
             current -> next = new PlayListNode(plcurrent -> song);
             current = current -> next;
         }
+        num_songs = pl.num_songs;
     }
 }
 
@@ -55,6 +56,38 @@ PlayList::~PlayList(){
         num_songs = 0;
     }
 }
+
+PlayList& PlayList::operator=(const PlayList &pl){
+    if (this != &pl){
+
+        while(head != nullptr){
+            PlayListNode *temp = head;
+            head = head -> next;
+            delete temp;
+        }
+        if (pl.head == nullptr){
+        head = nullptr;
+        num_songs = 0;
+        } 
+        else {
+            head = new PlayListNode(pl.head -> song);
+            PlayListNode *current = head;
+            PlayListNode *plcurrent = pl.head;
+
+            while( plcurrent != nullptr ){
+                plcurrent = plcurrent -> next;
+                current -> next = new PlayListNode(plcurrent -> song);
+                current = current -> next;
+            }
+        }
+        num_songs = pl.num_songs;
+
+
+    }
+
+    return *this;
+} 
+
 
 // Mutators
 // PRE: 0 <= i <= length of list
@@ -201,5 +234,4 @@ Song PlayList::get(unsigned int pos) const{
 unsigned int PlayList::size() const{
     return num_songs;
 }
-
 
