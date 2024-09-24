@@ -100,8 +100,8 @@ public:
 	// POST: Removes all strings from the list without changing capacity
 	void removeAll();
 
-	// Undoes the last operation that modified the list
-	// POST: Reverts the list to its state before the last operation
+//	 Undoes the last operation that modified the list
+//	 POST: Reverts the list to its state before the last operation
 	void undo();
 
 	// Prints the list
@@ -126,6 +126,11 @@ private:
 	// PARAM: lst = list to copy
 	// POST: Makes a deep copy of lst
 	void copyList(const StringList& lst);
+
+	class Undostack {
+		public:
+		private:
+	};
 
 };
 
