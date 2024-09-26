@@ -127,10 +127,23 @@ private:
 	// POST: Makes a deep copy of lst
 	void copyList(const StringList& lst);
 
-	class Undostack {
+	class UndoStack{
 		public:
+			//construtor
+			UndoStack(int cap);
+			~UndoStack();
+
+			void push(const string &operation);
+			void pop();
+
+
 		private:
+			string* undo_arr;
+			int undo_top;
+			int capacity;
+
 	};
 
+	UndoStack undostack;
 };
 

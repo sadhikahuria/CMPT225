@@ -229,3 +229,43 @@ void StringList::copyList(const StringList& lst)
 		arr[i] = lst.arr[i];
 	}
 }
+
+StringList::UndoStack::UndoStack(int cap){
+	undo_arr = new string[cap];
+	capacity = cap;
+	undo_top = 0;
+}
+
+StringList::UndoStack::~UndoStack(){
+	delete undo_arr;
+}
+
+void StringList::UndoStack::push(const string &operation){
+
+	if (undo_top == capacity-1){
+		capacity = capacity*2;
+		string *temp = new string[capacity];
+
+		for (int i = 0; i < undo_top+1; i++){
+			temp[i] = undo_arr[i];
+		}
+
+		delete undo_arr;
+		undo_arr = temp;
+	}
+
+	undo_top++;
+	undo_arr[undo_top] = operation;
+
+}
+
+void StringList::UndoStack::pop(){
+	
+	if (undo_top == 0){
+		return;
+	}
+	else {
+
+	}
+}
+
