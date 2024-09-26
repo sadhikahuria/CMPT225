@@ -134,7 +134,7 @@ private:
 			~UndoStack();
 
 			void push(const string &operation);
-			void pop();
+			string pop();
 
 
 		private:

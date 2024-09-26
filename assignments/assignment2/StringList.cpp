@@ -1,20 +1,22 @@
 #include "StringList.h"
 #include <stdexcept>
 #include <iostream>
+#include <sstream>
 using std::out_of_range;
 using std::cout;
 using std::endl;
 
 // Default constructor - makes an empty list of capacity 10
-StringList::StringList()
+StringList::StringList() : undostack(10)
 {
+	
 	capacity = 10;
 	n = 0;
 	arr = new string[capacity];
 }
 
 // Copy constructor
-StringList::StringList(const StringList& other)
+StringList::StringList(const StringList& other) : undostack(10)
 {
 	copyList(other);
 }
@@ -120,56 +122,61 @@ string StringList::toString() const
 
 // MUTATORS
 
-// ***UNDOABLE
-// Sets the value at the given index
-void StringList::set(int i, string str)
-{
-	checkBounds(i, "set");
-	arr[i] = str;
-}
-
-// ***UNDOABLE
-// Inserts the given string *before* the given index
-void StringList::insertBefore(int pos, string str)
-{
-	// Doesn't use checkBounds because it's okay to insert at the end
-	if (pos < 0 || pos > size()) {
-		throw out_of_range("StringList::insertBefore index out of bounds");
+	// ***UNDOABLE
+	// Sets the value at the given index
+			// inverse operation: set i str
+	void StringList::set(int i, string str)
+	{
+		checkBounds(i, "set");
+		arr[i] = str;
 	}
-	checkCapacity();
-	for (int i = n; i > pos; i--) {
-		arr[i] = arr[i-1];
+
+	// ***UNDOABLE
+	// Inserts the given string *before* the given index
+			//inverse operation:  remove i 
+	void StringList::insertBefore(int pos, string str)
+	{
+		// Doesn't use checkBounds because it's okay to insert at the end
+		if (pos < 0 || pos > size()) {
+			throw out_of_range("StringList::insertBefore index out of bounds");
+		}
+		checkCapacity();
+		for (int i = n; i > pos; i--) {
+			arr[i] = arr[i-1];
+		}
+		arr[pos] = str;
+		n++;
 	}
-	arr[pos] = str;
-	n++;
-}
 
-// ***UNDOABLE
-// Inserts the given string at the front of the list
-void StringList::insertFront(string str)
-{
-	checkCapacity();
-	insertBefore(0, str);
-}
-
-// ***UNDOABLE
-// Inserts the given string at the back of the list
-void StringList::insertBack(string str)
-{
-	checkCapacity();
-	insertBefore(n, str);
-}
-
-// ***UNDOABLE
-// Removes the element at the given index and moves elements after it down
-void StringList::remove(int pos)
-{
-	checkBounds(pos, "remove");
-	for (int i = pos; i < n; i++) {
-		arr[i] = arr[i + 1];
+	// ***UNDOABLE
+	// Inserts the given string at the front of the list
+			// remove 0, using insert before
+	void StringList::insertFront(string str)
+	{
+		checkCapacity();
+		insertBefore(0, str);
 	}
-	n--;
-}
+
+	// ***UNDOABLE
+	// Inserts the given string at the back of the list
+			// remove n using insert before
+	void StringList::insertBack(string str)
+	{
+		checkCapacity();
+		insertBefore(n, str);
+	}
+
+	// ***UNDOABLE
+	// Removes the element at the given index and moves elements after it down
+			// insert pos str
+	void StringList::remove(int pos)
+	{
+		checkBounds(pos, "remove");
+		for (int i = pos; i < n; i++) {
+			arr[i] = arr[i + 1];
+		}
+		n--;
+	}
 
 // ***UNDOABLE
 // Empties the list
@@ -181,11 +188,14 @@ void StringList::removeAll()
 	n = 0;
 }
 
-// Undoes the last operation that modified the list
-void StringList::undo()
-{
-	// TO DO
-}
+
+	// Undoes the last operation that modified the list
+	void StringList::undo()
+	{
+		// TO DO
+	}
+
+
 
 // Prints the list
 void StringList::print() const
@@ -230,42 +240,45 @@ void StringList::copyList(const StringList& lst)
 	}
 }
 
-StringList::UndoStack::UndoStack(int cap){
-	undo_arr = new string[cap];
-	capacity = cap;
-	undo_top = 0;
-}
+// UndoStack
 
-StringList::UndoStack::~UndoStack(){
-	delete undo_arr;
-}
+	StringList::UndoStack::UndoStack(int cap){
+		undo_arr = new string[cap];
+		capacity = cap;
+		undo_top = 0;
+	}
 
-void StringList::UndoStack::push(const string &operation){
+	StringList::UndoStack::~UndoStack(){
+		delete undo_arr;
+	}
 
-	if (undo_top == capacity-1){
-		capacity = capacity*2;
-		string *temp = new string[capacity];
+	void StringList::UndoStack::push(const string &operation){
 
-		for (int i = 0; i < undo_top+1; i++){
-			temp[i] = undo_arr[i];
+		if (undo_top == capacity-1){
+			capacity = capacity*2;
+			string *temp = new string[capacity];
+
+			for (int i = 0; i < undo_top+1; i++){
+				temp[i] = undo_arr[i];
+			}
+
+			delete undo_arr;
+			undo_arr = temp;
 		}
 
-		delete undo_arr;
-		undo_arr = temp;
-	}
-
-	undo_top++;
-	undo_arr[undo_top] = operation;
-
-}
-
-void StringList::UndoStack::pop(){
-	
-	if (undo_top == 0){
-		return;
-	}
-	else {
+		undo_top++;
+		undo_arr[undo_top] = operation;
 
 	}
-}
+
+	string StringList::UndoStack::pop(){
+		
+		if (undo_top == 0){
+			return;
+		}
+		else {
+			undo_top--;
+
+		}
+	}
 
