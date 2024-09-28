@@ -2,9 +2,13 @@
 #include <stdexcept>
 #include <iostream>
 #include <sstream>
+#include <limits>
+#include <string>
+
 using std::out_of_range;
 using std::cout;
 using std::endl;
+using namespace std;
 
 // Default constructor - makes an empty list of capacity 10
 StringList::StringList() : undostack(10)
@@ -127,6 +131,12 @@ string StringList::toString() const
 			// inverse operation: set i str
 	void StringList::set(int i, string str)
 	{
+		//pushing the inverse operation onto the undo stack
+		stringstream operation;						
+		operation << "SET" << i << str;
+		undostack.push(operation.str());
+
+
 		checkBounds(i, "set");
 		arr[i] = str;
 	}
@@ -136,6 +146,10 @@ string StringList::toString() const
 			//inverse operation:  remove i 
 	void StringList::insertBefore(int pos, string str)
 	{
+		stringstream operation;
+		operation << "REMOVE" << pos;
+		undostack.push(operation.str());
+		
 		// Doesn't use checkBounds because it's okay to insert at the end
 		if (pos < 0 || pos > size()) {
 			throw out_of_range("StringList::insertBefore index out of bounds");
@@ -171,6 +185,10 @@ string StringList::toString() const
 			// insert pos str
 	void StringList::remove(int pos)
 	{
+		stringstream operation;
+		operation << "INSERT" << pos << arr[pos];
+		undostack.push(operation.str());
+
 		checkBounds(pos, "remove");
 		for (int i = pos; i < n; i++) {
 			arr[i] = arr[i + 1];
@@ -178,21 +196,44 @@ string StringList::toString() const
 		n--;
 	}
 
-// ***UNDOABLE
-// Empties the list
-void StringList::removeAll()
-{
-	for (int i = 0; i < n; i++) {
-		arr[i] = "";
+	// ***UNDOABLE
+	// Empties the list
+	void StringList::removeAll()
+	{
+		for (int i = 0; i < n; i++) {
+			arr[i] = "";
+		}
+		n = 0;
 	}
-	n = 0;
-}
 
 
 	// Undoes the last operation that modified the list
 	void StringList::undo()
 	{
-		// TO DO
+		string operation = undostack.pop();
+		stringstream ss(operation);
+		string mutator;
+		ss >> mutator;
+
+		if ( mutator == "SET"){
+			int pos;
+
+		}
+		else if ( mutator == "INSERT" ){
+			int pos;
+			ss >> pos;
+			string str;
+			ss >> str;
+			insertBefore(pos, str);
+
+		}
+		else if (mutator == "REMOVE"){
+			int pos;
+			ss >> pos;
+			remove(pos);
+		}
+
+
 	}
 
 
@@ -256,7 +297,7 @@ void StringList::copyList(const StringList& lst)
 
 		if (undo_top == capacity-1){
 			capacity = capacity*2;
-			string *temp = new string[capacity];
+			string *temp { new string[capacity] };
 
 			for (int i = 0; i < undo_top+1; i++){
 				temp[i] = undo_arr[i];
@@ -267,7 +308,7 @@ void StringList::copyList(const StringList& lst)
 		}
 
 		undo_top++;
-		undo_arr[undo_top] = operation;
+		undo_arr[undo_top] = {operation};
 
 	}
 
@@ -277,7 +318,9 @@ void StringList::copyList(const StringList& lst)
 			return;
 		}
 		else {
+
 			undo_top--;
+			return undo_arr[undo_top+1];
 
 		}
 	}
