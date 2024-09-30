@@ -11,7 +11,7 @@ using std::endl;
 using namespace std;
 
 // Default constructor - makes an empty list of capacity 10
-StringList::StringList() : undostack(10)
+StringList::StringList() : undostack()
 {
 	
 	capacity = 10;
@@ -20,7 +20,7 @@ StringList::StringList() : undostack(10)
 }
 
 // Copy constructor
-StringList::StringList(const StringList& other) : undostack(10)
+StringList::StringList(const StringList& other) : undostack()
 {
 	copyList(other);
 }
@@ -31,6 +31,16 @@ StringList& StringList::operator=(const StringList& other)
 {
 	if(&other != this)
 	{
+		stringstream operation;
+		operation << "SET" << "arr";
+		for ( int i = 0; i < n; i++ ){
+			operation << arr[i];
+		}
+		operation << "END";
+		operation << n;
+
+		undostack.push(operation.str());
+
 		delete[] arr;
 		copyList(other);
 	}
@@ -206,6 +216,7 @@ string StringList::toString() const
 			operation << arr[i];
 		}
 		operation << "END";
+		operation << n;
 		undostack.push(operation.str());
 
 		for (int i = 0; i < n; i++) {
@@ -225,9 +236,9 @@ string StringList::toString() const
 
 		if ( mutator == "SET"){
 			int pos{};
-			string arr;
-			ss >> arr;
-			if (arr == "arr"){
+			string next;
+			ss >> next;
+			if (next == "arr"){
 				string str;
 				ss >> str;
 				do {
@@ -236,9 +247,14 @@ string StringList::toString() const
 					ss >> str;
 
 				} while (str != "END");
+				int temp;
+				ss >> temp;
+				for (int i = temp; i < capacity; i++){
+					arr[i] = "";
+				}
 			}
 			else{
-				pos = stoi(arr);
+				pos = stoi(next);
 				string str;
 				ss >> str;
 				set(pos, str);
@@ -309,9 +325,9 @@ void StringList::copyList(const StringList& lst)
 
 // UndoStack
 
-	StringList::UndoStack::UndoStack(int cap){
-		undo_arr = new string[cap];
-		capacity = cap;
+	StringList::UndoStack::UndoStack() : capacity{4}
+	{
+		undo_arr = new string[capacity];
 		undo_top = 0;
 	}
 
@@ -350,4 +366,6 @@ void StringList::copyList(const StringList& lst)
 
 		}
 	}
+
+	
 

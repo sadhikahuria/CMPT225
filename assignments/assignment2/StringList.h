@@ -130,12 +130,11 @@ private:
 	class UndoStack{
 		public:
 			//construtor
-			UndoStack(int cap);
+			UndoStack();
 			~UndoStack();
 
 			void push(const string &operation);
 			string pop();
-
 
 		private:
 			string* undo_arr;
