@@ -200,6 +200,14 @@ string StringList::toString() const
 	// Empties the list
 	void StringList::removeAll()
 	{
+		stringstream operation;
+		operation << "SET" << "arr";
+		for ( int i = 0; i < n; i++ ){
+			operation << arr[i];
+		}
+		operation << "END";
+		undostack.push(operation.str());
+
 		for (int i = 0; i < n; i++) {
 			arr[i] = "";
 		}
@@ -216,7 +224,25 @@ string StringList::toString() const
 		ss >> mutator;
 
 		if ( mutator == "SET"){
-			int pos;
+			int pos{};
+			string arr;
+			ss >> arr;
+			if (arr == "arr"){
+				string str;
+				ss >> str;
+				do {
+					set( pos, str);
+					pos++;
+					ss >> str;
+
+				} while (str != "END");
+			}
+			else{
+				pos = stoi(arr);
+				string str;
+				ss >> str;
+				set(pos, str);
+			}
 
 		}
 		else if ( mutator == "INSERT" ){
@@ -315,7 +341,7 @@ void StringList::copyList(const StringList& lst)
 	string StringList::UndoStack::pop(){
 		
 		if (undo_top == 0){
-			return;
+			throw out_of_range("The undo Stack is empty");
 		}
 		else {
 
