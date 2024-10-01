@@ -115,6 +115,7 @@ private:
 
 
 	class Undostack{
+		public:
 		int n;
 		int capacity;
 		string *undoarr;
@@ -139,16 +140,7 @@ private:
 		string pop();
 
 		// now we make the resize function to increase the capacity of the stack
-		void resize(){
-			capacity *= 2;
-			string *newArr { new string[capacity] };
-		
-			for(int i = 0; i < n; i++){
-				newArr[i]= undoarr[i];
-			}
-			delete[] undoarr;
-			undoarr = newArr;
-		}
+		void resize();
 	};
 
 	Undostack undostackk;

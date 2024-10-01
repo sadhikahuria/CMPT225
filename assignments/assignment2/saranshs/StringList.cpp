@@ -2,21 +2,25 @@
 #include <stdexcept>
 #include <iostream>
 #include <sstream>
+#include <limits>
+#include <string>
+
 using std::out_of_range;
 using std::cout;
 using std::endl;
 using namespace std;
 
 // Default constructor - makes an empty list of capacity 10
-StringList::StringList()
+StringList::StringList() : undostackk()
 {
+	
 	capacity = 10;
 	n = 0;
 	arr = new string[capacity];
 }
 
 // Copy constructor
-StringList::StringList(const StringList& other)
+StringList::StringList(const StringList& other) : undostackk()
 {
 	copyList(other);
 }
@@ -27,13 +31,14 @@ StringList& StringList::operator=(const StringList& other)
 {
 	if(&other != this)
 	{
-		stringstream command;
-		command << "RESTORE ";
-		for (int i = 0; i < n; i++ ){
-			command << arr[i] << " ";
+		stringstream operation;
+		operation << "RESTORE ";
+		for ( int i = 0; i < n; i++ ){
+			operation << arr[i] << " ";
 		}
-		command << "DONE ";
-		undostackk.push(command.str());
+		operation << "END ";
+		undostackk.push(operation.str());
+
 
 		delete[] arr;
 		copyList(other);
@@ -130,125 +135,164 @@ string StringList::toString() const
 
 // MUTATORS
 
-// ***UNDOABLE
-// Sets the value at the given index
-void StringList::set(int i, string str)
-{
-	checkBounds(i, "set");
-	string oldStr = arr[i];
-	arr[i] = str;
-	undostackk.push("SET" + to_string(i) + "" + oldStr);
-}
+	// ***UNDOABLE
+	// Sets the value at the given index
+			// inverse operation: set i str
+	void StringList::set(int i, string str)
+	{
+		//pushing the inverse operation onto the undo stack
+		checkBounds(i, "set");
+		string oldstr = arr[i];
 
-// ***UNDOABLE
-// Inserts the given string *before* the given index
-void StringList::insertBefore(int pos, string str)
-{
-	// Doesn't use checkBounds because it's okay to insert at the end
-	if (pos < 0 || pos > size()) {
-		throw out_of_range("StringList::insertBefore index out of bounds");
-	}
-	checkCapacity();
-	for (int i = n; i > pos; i--) {
-		arr[i] = arr[i-1];
-	}
-	arr[pos] = str;
-	n++;
+		arr[i] = str;
 
-	undostackk.push("REMOVE" + to_string(pos));
-}
+		undostackk.push("SET " + std::to_string(i) + " " + oldstr);
 
-// ***UNDOABLE
-// Inserts the given string at the front of the list
-void StringList::insertFront(string str)
-{
-	checkCapacity();
-	insertBefore(0, str);
-	undostackk.push("REMOVE 0");
-}
-
-// ***UNDOABLE
-// Inserts the given string at the back of the list
-void StringList::insertBack(string str)
-{
-	checkCapacity();
-	insertBefore(n, str);
-	undostackk.push("REMOVE " + to_string(n-1));
-}
-
-// ***UNDOABLE
-// Removes the element at the given index and moves elements after it down
-void StringList::remove(int pos)
-{
-	checkBounds(pos, "remove");
-	string removedstr = arr[pos];
-	for (int i = pos; i < n; i++) {
-		arr[i] = arr[i + 1];
-	}
-	n--;
-	undostackk.push("INSERT" + to_string(pos) + "" + removedstr);
-}
-
-// ***UNDOABLE
-// Empties the list
-void StringList::removeAll()
-{
-	StringList*listcopy = new StringList(*this);
-	undostackk.push("RESTORE");  
-	undostackk.pushlist(listcopy);
-	for (int i = 0; i < n; i++) {
-		arr[i] = "";
-	}
-	n = 0; // problem 
-
-	
-}
-
-// Undoes the last operation that modified the list
-void StringList::undo()
-{
-	if(undostackk.n == 0 ){
-		cout<<"Nothing to undo"<< endl;
-		return;
 	}
 
-	//popping the last undo
-	string *commandptr = static_cast<string*>(undostackk.pop()); 
-	string command = *commandptr;
-	delete commandptr;
+	// ***UNDOABLE
+	// Inserts the given string *before* the given index
+			//inverse operation:  remove i 
+	void StringList::insertBefore(int pos, string str)
+	{
+		
+		// Doesn't use checkBounds because it's okay to insert at the end
+		if (pos < 0 || pos > size()) {
+			throw out_of_range("StringList::insertBefore index out of bounds");
+		}
+		checkCapacity();
+		for (int i = n; i > pos; i--) {
+			arr[i] = arr[i-1];
+		}
+		arr[pos] = str;
+		n++;
 
-	if(command.find("SET") == 0 ){
-		// this is for the set function
-		int pos = stoi(command.substr(4, command.find(' ', 4)-4));
-		string oldStr = command.substr(command.find(' ', 4)+1);
-		arr[pos] = oldStr;
+		undostackk.push("REMOVE " + to_string(pos));
 	}
-	else if (command.find("REMOVE")==0){
-		// this is for all the insertion function like insertbefore, insertfront and insertback to undo the insertion by removing
-		int pos = stoi(command.substr(7));
-		remove (pos);
+
+	// ***UNDOABLE
+	// Inserts the given string at the front of the list
+			// remove 0, using insert before
+	void StringList::insertFront(string str)
+	{
+		checkCapacity();
+		insertBefore(0, str);
 	}
-	else if(command.find("INSERT") == 0){
-		// this is only for the remove function only not removeall
-		int n1space = command.find(' ', 7);
-		int pos = stoi(command.substr(7, n1space-7));
-		string removedstr = command.substr(n1space +1);
-		insertBefore(pos, removedstr);
-	
+
+	// ***UNDOABLE
+	// Inserts the given string at the back of the list
+			// remove n using insert before
+	void StringList::insertBack(string str)
+	{
+		checkCapacity();
+		insertBefore(n, str);
 	}
-	else if(command.find("RESTORE") == 0){
-		// this is for the removeall function and assingment operator 
-		StringList*listcopy = static_cast<StringList*>(undostackk.pop());
-		*this = *listcopy;
-		delete listcopy;
+
+	// ***UNDOABLE
+	// Removes the element at the given index and moves elements after it down
+			// insert pos str
+	void StringList::remove(int pos)
+	{
+		checkBounds(pos, "remove");
+
+		string oldstr = arr[pos]; 
+		for (int i = pos; i < n; i++) {
+			arr[i] = arr[i + 1];
+		}
+		n--;
+
+		undostackk.push("INSERT " + to_string(pos) + " " + oldstr);
 	}
-	// else if(command.find("RESTORE") == 0){
-	// 	// this is for the removeall function
-	// 	StringList*CopyList = undostackk.pop();
-	// 	*this = *CopyList;
-	// 	delete CopyList;
-	// }
-}
+
+	// ***UNDOABLE
+	// Empties the list
+	void StringList::removeAll()
+	{
+		stringstream operation;
+		operation << "RESTORE ";
+		for ( int i = 0; i < n; i++ ){
+			string oldstr = arr[i];
+			operation << oldstr << " ";
+		}
+		operation << "END ";
+		undostackk.push(operation.str());
+
+		for (int i = 0; i < n; i++) {
+			arr[i] = "";
+		}
+		n = 0;
+	}
+
+
+	// Undoes the last operation that modified the list
+	void StringList::undo()
+	{
+		if ( undostackk.n == -1 ){
+			throw out_of_range("the undo stack is empty");
+		}
+
+		string operation = undostackk.pop();
+		stringstream ss(operation);
+		string mutator;
+		ss >> mutator;
+
+		if ( mutator == "SET"){
+			int pos;
+			string newstr;
+			ss >> pos >> newstr;
+			arr[pos] = newstr;
+		}
+		else if ( mutator == "INSERT" ){
+			int pos;
+			string str;
+			ss >> pos >> str;
+			if (pos < 0 || pos > size()) {
+				throw out_of_range("StringList::insertBefore index out of bounds");
+			}
+			checkCapacity();
+			for (int i = n; i > pos; i--) {
+				arr[i] = arr[i-1];
+			}
+			arr[pos] = str;
+			n++;
+
+		}
+		else if (mutator == "REMOVE"){
+			int pos;
+			ss >> pos;
+
+			checkBounds(pos, "remove");
+
+			for (int i = pos; i < n; i++) {
+				arr[i] = arr[i + 1];
+			}
+			n--;
+		}
+		else if (mutator == "RESTORE"){
+
+			for (int i = 0; i < n; i++) {
+				arr[i] = "";
+			}
+			n = 0;
+
+			string newstr;
+			while ( (ss >> newstr) && ( newstr != "END") ){
+				if (n < 0 || n > size()) {
+					throw out_of_range("StringList::insertBefore index out of bounds");
+				}
+				checkCapacity();
+				for (int i = n; i > n; i--) {
+					arr[i] = arr[i-1];
+				}
+				arr[n] = newstr;
+				n++;
+			}
+
+		}
+
+	}
+
+
 
 // Prints the list
 void StringList::print() const
@@ -293,6 +337,8 @@ void StringList::copyList(const StringList& lst)
 	}
 }
 
+
+
 string StringList::Undostack::pop(){
 	if (n==0) throw out_of_range("empty undo stack");
 	return undoarr[--n];
@@ -305,3 +351,13 @@ void StringList::Undostack::push(const string& command){
 	undoarr[++n]= command;
 }
 
+void StringList::Undostack::resize(){
+	capacity *= 2;
+	string *newArr { new string[capacity] };
+
+	for(int i = 0; i < n; i++){
+		newArr[i]= undoarr[i];
+	}
+	delete[] undoarr;
+	undoarr = newArr;
+}
