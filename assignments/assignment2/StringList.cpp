@@ -145,7 +145,6 @@ string StringList::toString() const
 		checkBounds(i, "set");
 		string oldstr = arr[i];
 
-		checkBounds(i, "set");
 		arr[i] = str;
 
 		undostack.push("SET " + std::to_string(i) + " " + oldstr);
