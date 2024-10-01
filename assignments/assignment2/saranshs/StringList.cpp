@@ -355,40 +355,10 @@ void StringList::copyList(const StringList &lst)
 	}
 }
 
-string StringList::Undostack::pop()
-{
-	if (n == 0)
-		throw out_of_range("empty undo stack");
-	return undoarr[--n];
-}
-
-void StringList::Undostack::push(const string &command)
-{
-	if (n == capacity)
-	{
-		resize();
-	}
-	undoarr[++n] = command;
-}
-
-void StringList::Undostack::resize()
-{
-	capacity *= 2;
-	string *newArr{new string[capacity]};
-
-	for (int i = 0; i < n; i++)
-	{
-		newArr[i] = undoarr[i];
-	}
-	delete[] undoarr;
-	undoarr = newArr;
-}
 
 // now we make the constructor
-StringList::Undostack::Undostack()
+StringList::Undostack::Undostack(): n{-1}, capacity{4} 
 {
-	n = 0;
-	capacity = 4;
 	undoarr = new string[capacity];
 }
 
@@ -397,3 +367,36 @@ StringList::Undostack::~Undostack()
 {
 	delete[] undoarr;
 }
+
+string StringList::Undostack::pop()
+{
+	if (n == -1){
+		throw out_of_range("empty undo stack");
+	}
+	n--;
+	return undoarr[n+1];
+}
+
+void StringList::Undostack::push(const string &command)
+{
+	if (n == capacity-1)
+	{
+		resize();
+	}
+	n++;
+	undoarr[n] = command;
+}
+
+void StringList::Undostack::resize()
+{
+	capacity *= 2;
+	string *newArr { new string[capacity] };
+
+	for (int i = 0; i < n+1; i++)
+	{
+		newArr[i] = undoarr[i];
+	}
+	delete[] undoarr;
+	undoarr = newArr;
+}
+
