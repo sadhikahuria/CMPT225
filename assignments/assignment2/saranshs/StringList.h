@@ -116,31 +116,25 @@ private:
 
 	class Undostack{
 		public:
-		int n;
-		int capacity;
-		string *undoarr;
+		
+			int n;
+			int capacity;
+			string *undoarr;
 
-		//now we make the constructor 
-		Undostack(){ 
-			n = 0;
-		 	capacity = 4 ;
-			undoarr = new string[capacity];
+			//now we make the constructor 
+			Undostack();
 
-		}
+			//now deconstructor 
+			~Undostack();
 
-		//now deconstructor 
-		~Undostack(){
-			delete[] undoarr;
-		}
+			// to push the undo command in the stack for the strings 
+			void push(const string& command);
 
-		// to push the undo command in the stack for the strings 
-		void push(const string& command);
+			// to pop out the most recent command
+			string pop();
 
-		// to pop out the most recent command
-		string pop();
-
-		// now we make the resize function to increase the capacity of the stack
-		void resize();
+			// now we make the resize function to increase the capacity of the stack
+			void resize();
 	};
 
 	Undostack undostackk;
