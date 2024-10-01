@@ -135,10 +135,10 @@ private:
 
 			void push(const string &operation);
 			string pop();
+			int undo_top;
 
 		private:
 			string* undo_arr;
-			int undo_top;
 			int capacity;
 
 	};

@@ -32,14 +32,14 @@ StringList& StringList::operator=(const StringList& other)
 	if(&other != this)
 	{
 		stringstream operation;
-		operation << "SET" << "arr";
+		operation << "RESTORE ";
 		for ( int i = 0; i < n; i++ ){
-			operation << arr[i];
+			string oldstr = arr[i];
+			operation << oldstr << " ";
 		}
-		operation << "END";
-		operation << n;
-
+		operation << "END ";
 		undostack.push(operation.str());
+
 
 		delete[] arr;
 		copyList(other);
@@ -142,13 +142,14 @@ string StringList::toString() const
 	void StringList::set(int i, string str)
 	{
 		//pushing the inverse operation onto the undo stack
-		stringstream operation;						
-		operation << "SET" << i << str;
-		undostack.push(operation.str());
-
+		checkBounds(i, "set");
+		string oldstr = arr[i];
 
 		checkBounds(i, "set");
 		arr[i] = str;
+
+		undostack.push("SET " + std::to_string(i) + " " + oldstr);
+
 	}
 
 	// ***UNDOABLE
@@ -156,9 +157,6 @@ string StringList::toString() const
 			//inverse operation:  remove i 
 	void StringList::insertBefore(int pos, string str)
 	{
-		stringstream operation;
-		operation << "REMOVE" << pos;
-		undostack.push(operation.str());
 		
 		// Doesn't use checkBounds because it's okay to insert at the end
 		if (pos < 0 || pos > size()) {
@@ -170,6 +168,8 @@ string StringList::toString() const
 		}
 		arr[pos] = str;
 		n++;
+
+		undostack.push("REMOVE " + to_string(pos));
 	}
 
 	// ***UNDOABLE
@@ -195,15 +195,15 @@ string StringList::toString() const
 			// insert pos str
 	void StringList::remove(int pos)
 	{
-		stringstream operation;
-		operation << "INSERT" << pos << arr[pos];
-		undostack.push(operation.str());
-
 		checkBounds(pos, "remove");
+
+		string oldstr = arr[pos]; 
 		for (int i = pos; i < n; i++) {
 			arr[i] = arr[i + 1];
 		}
 		n--;
+
+		undostack.push("INSERT " + to_string(pos) + " " + oldstr);
 	}
 
 	// ***UNDOABLE
@@ -211,12 +211,12 @@ string StringList::toString() const
 	void StringList::removeAll()
 	{
 		stringstream operation;
-		operation << "SET" << "arr";
+		operation << "RESTORE ";
 		for ( int i = 0; i < n; i++ ){
-			operation << arr[i];
+			string oldstr = arr[i];
+			operation << oldstr << " ";
 		}
-		operation << "END";
-		operation << n;
+		operation << "END ";
 		undostack.push(operation.str());
 
 		for (int i = 0; i < n; i++) {
@@ -229,37 +229,20 @@ string StringList::toString() const
 	// Undoes the last operation that modified the list
 	void StringList::undo()
 	{
+		if ( undostack.undo_top == -1 ){
+			throw out_of_range("the undo stack is empty");
+		}
+
 		string operation = undostack.pop();
 		stringstream ss(operation);
 		string mutator;
 		ss >> mutator;
 
 		if ( mutator == "SET"){
-			int pos{};
-			string next;
-			ss >> next;
-			if (next == "arr"){
-				string str;
-				ss >> str;
-				do {
-					set( pos, str);
-					pos++;
-					ss >> str;
-
-				} while (str != "END");
-				int temp;
-				ss >> temp;
-				for (int i = temp; i < capacity; i++){
-					arr[i] = "";
-				}
-			}
-			else{
-				pos = stoi(next);
-				string str;
-				ss >> str;
-				set(pos, str);
-			}
-
+			int pos;
+			string newstr;
+			ss >> pos >> newstr;
+			set(pos, newstr);
 		}
 		else if ( mutator == "INSERT" ){
 			int pos;
@@ -274,7 +257,14 @@ string StringList::toString() const
 			ss >> pos;
 			remove(pos);
 		}
+		else if (mutator == "RESTORE"){
+			removeAll();
+			string newstr;
+			while ( (ss >> newstr) && ( newstr != "END") ){
+				insertBack(newstr);
+			}
 
+		}
 
 	}
 
@@ -325,14 +315,13 @@ void StringList::copyList(const StringList& lst)
 
 // UndoStack
 
-	StringList::UndoStack::UndoStack() : capacity{4}
+	StringList::UndoStack::UndoStack() : capacity{4}, undo_top{-1}
 	{
 		undo_arr = new string[capacity];
-		undo_top = 0;
 	}
 
 	StringList::UndoStack::~UndoStack(){
-		delete undo_arr;
+		delete[] undo_arr;
 	}
 
 	void StringList::UndoStack::push(const string &operation){
@@ -345,7 +334,7 @@ void StringList::copyList(const StringList& lst)
 				temp[i] = undo_arr[i];
 			}
 
-			delete undo_arr;
+			delete[] undo_arr;
 			undo_arr = temp;
 		}
 
@@ -356,7 +345,7 @@ void StringList::copyList(const StringList& lst)
 
 	string StringList::UndoStack::pop(){
 		
-		if (undo_top == 0){
+		if (undo_top == -1){
 			throw out_of_range("The undo Stack is empty");
 		}
 		else {
