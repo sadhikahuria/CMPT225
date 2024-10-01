@@ -114,69 +114,40 @@ private:
 	string* arr;
 
 
-	struct Undostack{
+	class Undostack{
 		int n;
 		int capacity;
-		void **arr;
+		string *undoarr;
 
 		//now we make the constructor 
 		Undostack(){ 
 			n = 0;
 		 	capacity = 4 ;
-			arr = new void*[capacity];
+			undoarr = new string[capacity];
 
 		}
 
 		//now deconstructor 
 		~Undostack(){
-			for (int i=0; i < n; i++){
-				string * strptr = static_cast<string*>(arr[i]);
-				if (strptr){
-					delete strptr;
-				}
-				else{
-					StringList*listptr = static_cast<StringList*>(arr[i]);
-					if (listptr){
-						delete listptr;
-					}
-				}
-				
-			}
-
-			delete[] arr;
+			delete[] undoarr;
 		}
 
 		// to push the undo command in the stack for the strings 
-		void push(const string& command){
-			if (n == capacity){
-				resize();
-			}
-			arr[n++]= new string(command);
-		}
-
-		//this will be to push the list into the stack 
-		void pushlist(StringList* listcopy){
-			if(n== capacity){
-				resize();
-			}
-			arr[n++] = listcopy;
-		}
+		void push(const string& command);
 
 		// to pop out the most recent command
-		void* pop(){
-			if (n==0) return nullptr;
-			return arr[--n];
-		}
+		string pop();
 
 		// now we make the resize function to increase the capacity of the stack
 		void resize(){
 			capacity *= 2;
-			void** newArr = new void*[capacity];
+			string *newArr { new string[capacity] };
+		
 			for(int i = 0; i < n; i++){
-				newArr[i]= arr[i];
+				newArr[i]= undoarr[i];
 			}
-			delete[] arr;
-			arr = newArr;
+			delete[] undoarr;
+			undoarr = newArr;
 		}
 	};
 

@@ -27,9 +27,13 @@ StringList& StringList::operator=(const StringList& other)
 {
 	if(&other != this)
 	{
-		StringList*listcopy = new StringList(*this);
-		undostackk.push("RESTORE");
-		undostackk.pushlist(listcopy);
+		stringstream command;
+		command << "RESTORE ";
+		for (int i = 0; i < n; i++ ){
+			command << arr[i] << " ";
+		}
+		command << "DONE ";
+		undostackk.push(command.str());
 
 		delete[] arr;
 		copyList(other);
@@ -288,3 +292,16 @@ void StringList::copyList(const StringList& lst)
 		arr[i] = lst.arr[i];
 	}
 }
+
+string StringList::Undostack::pop(){
+	if (n==0) throw out_of_range("empty undo stack");
+	return undoarr[--n];
+}
+
+void StringList::Undostack::push(const string& command){
+	if (n == capacity){
+		resize();
+	}
+	undoarr[++n]= command;
+}
+
