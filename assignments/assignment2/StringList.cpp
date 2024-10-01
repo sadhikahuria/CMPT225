@@ -34,8 +34,7 @@ StringList& StringList::operator=(const StringList& other)
 		stringstream operation;
 		operation << "RESTORE ";
 		for ( int i = 0; i < n; i++ ){
-			string oldstr = arr[i];
-			operation << oldstr << " ";
+			operation << arr[i] << " ";
 		}
 		operation << "END ";
 		undostack.push(operation.str());
@@ -241,26 +240,52 @@ string StringList::toString() const
 			int pos;
 			string newstr;
 			ss >> pos >> newstr;
-			set(pos, newstr);
+			arr[pos] = newstr;
 		}
 		else if ( mutator == "INSERT" ){
 			int pos;
-			ss >> pos;
 			string str;
-			ss >> str;
-			insertBefore(pos, str);
+			ss >> pos >> str;
+			if (pos < 0 || pos > size()) {
+				throw out_of_range("StringList::insertBefore index out of bounds");
+			}
+			checkCapacity();
+			for (int i = n; i > pos; i--) {
+				arr[i] = arr[i-1];
+			}
+			arr[pos] = str;
+			n++;
 
 		}
 		else if (mutator == "REMOVE"){
 			int pos;
 			ss >> pos;
-			remove(pos);
+
+			checkBounds(pos, "remove");
+
+			for (int i = pos; i < n; i++) {
+				arr[i] = arr[i + 1];
+			}
+			n--;
 		}
 		else if (mutator == "RESTORE"){
-			removeAll();
+
+			for (int i = 0; i < n; i++) {
+				arr[i] = "";
+			}
+			n = 0;
+
 			string newstr;
 			while ( (ss >> newstr) && ( newstr != "END") ){
-				insertBack(newstr);
+				if (n < 0 || n > size()) {
+					throw out_of_range("StringList::insertBefore index out of bounds");
+				}
+				checkCapacity();
+				for (int i = n; i > n; i--) {
+					arr[i] = arr[i-1];
+				}
+				arr[n] = newstr;
+				n++;
 			}
 
 		}
