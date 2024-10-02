@@ -2,8 +2,6 @@
 #include <stdexcept>
 #include <iostream>
 #include <sstream>
-#include <limits>
-#include <string>
 
 using std::out_of_range;
 using std::cout;
@@ -31,7 +29,7 @@ StringList& StringList::operator=(const StringList& other)
 {
 	if(&other != this)
 	{
-		stringstream operation;
+		stringstream operation{};
 		operation << "RESTORE ";
 		for ( int i = 0; i < n; i++ ){
 			operation << arr[i] << " ";
@@ -75,7 +73,7 @@ string StringList::get(int i) const
 // Returns the index of the first occurrence of the given string
 int StringList::index(string s) const
 {
-	int i = 0;
+	int i{0};
 	while (i < n && s != arr[i]) {
 		i++;
 	}
@@ -142,7 +140,7 @@ string StringList::toString() const
 	{
 		//pushing the inverse operation onto the undo stack
 		checkBounds(i, "set");
-		string oldstr = arr[i];
+		string oldstr {arr[i]};
 
 		arr[i] = str;
 
@@ -195,7 +193,7 @@ string StringList::toString() const
 	{
 		checkBounds(pos, "remove");
 
-		string oldstr = arr[pos]; 
+		string oldstr {arr[pos]}; 
 		for (int i = pos; i < n; i++) {
 			arr[i] = arr[i + 1];
 		}
@@ -208,7 +206,7 @@ string StringList::toString() const
 	// Empties the list
 	void StringList::removeAll()
 	{
-		stringstream operation;
+		stringstream operation{};
 		operation << "RESTORE ";
 		for ( int i = 0; i < n; i++ ){
 			string oldstr = arr[i];
@@ -231,20 +229,20 @@ string StringList::toString() const
 			throw out_of_range("the undo stack is empty");
 		}
 
-		string operation = undostack.pop();
+		string operation {undostack.pop()};
 		stringstream ss(operation);
-		string mutator;
+		string mutator{};
 		ss >> mutator;
 
 		if ( mutator == "SET"){
-			int pos;
-			string newstr;
+			int pos{};
+			string newstr{};
 			ss >> pos >> newstr;
 			arr[pos] = newstr;
 		}
 		else if ( mutator == "INSERT" ){
-			int pos;
-			string str;
+			int pos{};
+			string str{};
 			ss >> pos >> str;
 			if (pos < 0 || pos > size()) {
 				throw out_of_range("StringList::insertBefore index out of bounds");
@@ -258,7 +256,7 @@ string StringList::toString() const
 
 		}
 		else if (mutator == "REMOVE"){
-			int pos;
+			int pos{};
 			ss >> pos;
 
 			checkBounds(pos, "remove");
@@ -275,7 +273,7 @@ string StringList::toString() const
 			}
 			n = 0;
 
-			string newstr;
+			string newstr{};
 			while ( (ss >> newstr) && ( newstr != "END") ){
 				if (n < 0 || n > size()) {
 					throw out_of_range("StringList::insertBefore index out of bounds");
@@ -315,7 +313,7 @@ void StringList::checkCapacity()
 {
 	if (n == capacity) {
 		capacity *= 2;
-		string* temp = new string[capacity];
+		string* temp {new string[capacity]};
 		
 		for (int i = 0; i < n; i++) {
 			temp[i] = arr[i];
@@ -341,7 +339,7 @@ void StringList::copyList(const StringList& lst)
 
 	StringList::UndoStack::UndoStack() : capacity{4}, undo_top{-1}
 	{
-		undo_arr = new string[capacity];
+		undo_arr = new string[capacity] ;
 	}
 
 	StringList::UndoStack::~UndoStack(){
