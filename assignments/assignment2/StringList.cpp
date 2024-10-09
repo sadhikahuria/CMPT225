@@ -356,7 +356,7 @@ void StringList::copyList(const StringList& lst)
 				temp[i] = undo_arr[i];
 			}
 
-			delete[] undo_arr;
+			delete undo_arr;
 			undo_arr = temp;
 		}
 

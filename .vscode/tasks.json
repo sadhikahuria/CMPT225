@@ -18,7 +18,9 @@
                 //"-Wconversion",
                 //"-Wsign-conversion",
                 //"-Werror",
-                "${file}",
+                //"${file}",
+                //"${workspaceFolder}/assignments/*.cpp",
+                "${workspaceFolder}/assignments/assignment2/*.cpp",
                 "-o",
                 "${fileDirname}\\${fileBasenameNoExtension}.exe"
             ],
