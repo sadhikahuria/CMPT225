@@ -1,3 +1,33 @@
+#include <iostream>
+/*
+Sorting        
+
+    Assume that running time t of an alogorithm is 
+    proportional to the number of operations
+    
+    express t as a function of n
+    t(n)
+
+    eg:
+*/
+        void printArray(int arr[], int n){
+            for (int i = 0; i < n; ++i){
+                std::cout << arr[i] << std::endl;
+            }
+        }
+/*
+        1 - intialize
+        n - comparion, i< n
+        n - increment ++i
+        n - print
+        1 - terminating comparsion, i< n
+
+        t = 3n + 2
+
+    barometer instruction / key operation
+        the instruction is executed the greated number of times
+*/
+ 
 /*
 
 Linear search
@@ -19,23 +49,41 @@ Linear search
 
 */
 
+/*
+    Linear search:
+        average case time 
+            all possible case time / number of cases
+                1 + 2 + 3 + ... + n / n
+                (n+1)/2 
+    
+        average if target is in array (n+1)/2
+        average if target is not in the array (n)
+        for average we divide by 2
+        ( in array + not in array ) / 2
+        ( (n+1)/2 + n ) / 2
+        ( (3n + 1)/2 ) / 2
+        ( 3n + 4 ) / 2 : weighted average
+
+    */
+
 // not recursive
-int binarySearch(int arr[], int n, int x){
+int binarySearch(int arr[], int n, int target){
     int low = 0;
     int high = n-1;
-    int mid = 0;
+    int mid = 0; 
     while (low <= high){
         mid = (low + high) / 2;
-        if ( x == arr[mid] ){
+        if ( target == arr[mid] ){
             return mid;
         }
-        else if ( x > arr[mid]){
+        else if ( target > arr[mid]){
             low = mid + 1;
         } else {
             high = mid - 1;
         }
     }
     return -1;
+    // t binary 5(log2(n)+1) + 4
 }
 
 
