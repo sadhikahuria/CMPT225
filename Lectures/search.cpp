@@ -97,10 +97,10 @@ Insertion sort
 */
 
 int getSmallest( int arr[], int start, int end){
-    int smallest = start;
-    for (int i = start +1; i < end; i++){
-        if (arr[i] < arr[smallest]){
-            smallest = i;
+    int smallest = start;                       
+    for (int i = start +1; i < end; ++i){       
+        if (arr[i] < arr[smallest]){            
+            smallest = i;                        
         }
     }
     return smallest;
@@ -111,10 +111,29 @@ void swap (int arr[], int i, int j){
     arr[i] = arr[j];
     arr[j] = temp;
 
-}
+} 
+
 void selectionsort(int arr[], int n){
-    for (int i = 0; i < n-1; ++i){
-        int smallest = getSmallest(arr, i, n);
+    for (int i = 0; i < n-1; ++i){               
+        int smallest = getSmallest(arr, i, n);  
         swap(arr, i, smallest);
     }
 }
+ 
+/*
+Counting sequences
+    i + i+1 + ... + n-1 + n
+        ( (i+n)/2 ) * (n-i+1)
+    
+    eg 
+        2 + 3 + 4 + 5 + 6
+        (2+6)/2 * (6-2+1)
+        8/2 * 5
+        20
+
+    eg 
+        1 + 2 + 3 + ... + n-2 + n-1
+        (1 + n-1)/2 * (n-1-+1)
+        n/2 * n
+        n^2 / 2
+*/
