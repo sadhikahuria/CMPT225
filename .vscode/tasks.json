@@ -18,8 +18,8 @@
                 //"-Wconversion",
                 //"-Wsign-conversion",
                 //"-Werror",
-                "${file}",
-                //"${workspaceFolder}/assignments/assignment2/*.cpp",
+                //"${file}",
+                "${workspaceFolder}/Lectures/circular/*.cpp",
                 "-o",
                 "${fileDirname}\\${fileBasenameNoExtension}.exe"
             ],
