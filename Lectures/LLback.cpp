@@ -16,22 +16,22 @@ class NODE{
 
 };
 
-class LIST{
+class DEQUE{
     public:
     NODE *head{nullptr};
     unsigned count{};
     
-    LIST(){
+    DEQUE(){
         NODE *newnode {new NODE()};
         head = newnode;
         count = {1};
     }
-    LIST(int somedata){
+    DEQUE(int somedata){
         NODE *newnode {new NODE(somedata)};
         head = newnode;
         count = {1};
     }
-    ~LIST(){
+    ~DEQUE(){
         NODE *current {head};
         for (unsigned int i = 0; i < count; i++){
             current = current -> next;
@@ -60,7 +60,7 @@ class LIST{
     void printlistback(){
         printlistbackhelper(head);
     }
-    LIST& operator=(const LIST &other){
+    DEQUE& operator=(const DEQUE &other){
         if (this != &other){
             NODE *current {head};
             while(current != nullptr){
@@ -86,7 +86,7 @@ class LIST{
 
 
 int main(){
-    LIST list(1);
+    DEQUE list(1);
     list.insert(2);
     list.insert(3);
     list.insert(4);
@@ -94,7 +94,7 @@ int main(){
     list.insert(6);
     list.insert(7);
     list.printlistback();
-    LIST list2;
+    DEQUE list2;
     list2 = list;
     list2.printlistback();
     return 0;

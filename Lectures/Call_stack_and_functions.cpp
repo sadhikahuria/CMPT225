@@ -43,3 +43,7 @@ int main(){
     // PEEK - return the top item
     // the order is based on the order the items arrive
     
+
+// how to reverse linked list
+// vectors
+

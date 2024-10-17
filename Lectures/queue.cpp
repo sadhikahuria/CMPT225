@@ -11,13 +11,13 @@ class NODE{
         NODE(int newval): data{newval}{};
 };
 
-class LIST{
+class DEQUE{
     public:
         NODE *head{nullptr};
         NODE *tail{nullptr};
         int count{};
-        LIST(){};
-        LIST(int val): head{new NODE(val)} {
+        DEQUE(){};
+        DEQUE(int val): head{new NODE(val)} {
             tail = head;
             count++;
         }

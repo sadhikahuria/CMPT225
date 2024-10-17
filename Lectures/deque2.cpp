@@ -2,6 +2,7 @@
 // double ended queue
 // insert front and back
 // remove insert and back
+#include <iostream>
 
 class NODE{
     public:
@@ -12,14 +13,15 @@ class NODE{
         NODE(int newval): data {newval}{};
 };
 
-class LIST{
-    public:
+class DEQUE{
+    private:
         NODE *head{nullptr};
         NODE *tail{nullptr};
         unsigned int count{};
 
-        LIST(){};
-        LIST(int val): head {new NODE(val)}{
+    public:
+        DEQUE(){};
+        DEQUE(int val): head {new NODE(val)}{
             tail = head;
             count++;
         };
@@ -60,8 +62,43 @@ class LIST{
             }
         }
 
+        int size(){
+            return count;
+        }
+
+        void print(){
+            if (head != nullptr){
+                NODE *current = head;
+                while (current != nullptr){
+                    std::cout << current -> data << std::endl;
+                    current = current -> next;
+                }
+            }
+        }
+
+        void reverse(){
+            NODE *current = head;
+            while (current != nullptr){
+                NODE *currentnext = current -> next;
+                current -> next = current -> previous;
+                current -> previous = currentnext;
+                current = currentnext;
+            }
+            NODE *newhead = tail;
+            tail = head;
+            head = newhead;
+        }
 };
 
 int main(){
+    DEQUE list(1);
+    list.insertback(2);
+    list.insertback(3);
+    list.insertback(4);
+    list.insertback(5);
+    list.insertback(6);
+    list.print();
+    list.reverse();
+    list.print();
     return 0;
 }
