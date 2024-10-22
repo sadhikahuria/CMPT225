@@ -85,6 +85,17 @@ int binarySearch(int arr[], int n, int target){
     return -1;
     // t binary 5(log2(n)+1) + 4
 }
+/*
+trying t binary myself
+    worst case
+    intialize 3
+    loop comparsions 3
+    loop statements 2
+    final comparsions 1
+    return 1
+    3 + 1 + 1 + (3 + 2) (log n)
+    5 log n + 5
+    or 5 log n + 4 if not counting return*/
 
 
 /*
@@ -137,3 +148,58 @@ Counting sequences
         n/2 * n
         n^2 / 2
 */
+
+
+/* 
+Linear search ( trying myself )
+
+    50% change of being in the array
+    50% of not being in the array
+    if not in the array. n comparsions
+    50% of n is n/2
+    
+    if in the array
+    each position has 1/n probability
+    1 comparsion for 1st pos
+    2 comparsion for 2nd pos
+    3 comparsion for 3rd pos
+    n comparsion for nth pos
+    
+    multiple probability of each pos with its comparsion
+    adding all the prob, to find the proability of it being anywhere in the array
+    
+    1 * 1/n + 2 * 2/n + 3 * 3/n + n * 1/n
+    1/n ( 1 + 2 + 3 + n )
+    1/n ( n(n+1)/2 )
+    (n+1)/2
+    comparsions if its anywhere in the array
+    50% * (n+1)/2
+    (n+1)/4
+    
+    adding both 50% prob
+    (n/2) + (n+1)/4
+    (2n/4) + (n+1)/4
+    (3n+1)/4
+    
+*/
+
+void insertionsort(int arr[], int n){
+    for ( int i{}; i < n-1 ; i++){
+        int pos = i;
+        while (arr[pos] > arr[pos+1] && (pos >= 0)){
+            swap(arr, pos, pos+1);
+            pos--;
+        }
+
+
+    }
+}
+
+
+int main(){
+    int arr[4] = {9,3,7,6};
+    insertionsort(arr, 4);
+    for ( int i{}; i < 4 ; i++){   
+        std::cout << arr[i] << std::endl;
+    }
+}
