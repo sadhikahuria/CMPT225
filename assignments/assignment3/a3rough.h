@@ -215,7 +215,6 @@ void ssort(int arr[], int n, int i, int &operations, bool first_call = true)
 //      e.g. pattern(8, 0)
 void pattern(int n, int i, int &operations, bool first_call = true)
 {
-    //intialize operations
     if (first_call){
         
         operations = 0;
@@ -304,7 +303,7 @@ unsigned pow(unsigned int base, unsigned int exp, int &operations) {
         exp >>= 1; 
         base = base * base;
 
-        operations += 4;        //all combined
+        operations += 4;        
     }
 
     operations++;
