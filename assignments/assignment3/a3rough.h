@@ -174,7 +174,7 @@ void ssort(int arr[], int n, int i, int &operations, bool first_call = true)
         int next = i + 1;
         int smallest = i;
 
-        operations += 3;
+        operations += 2;
 
         while (next < n) {
             if (arr[next] < arr[smallest]) {
