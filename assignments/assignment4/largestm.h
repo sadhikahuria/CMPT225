@@ -1,30 +1,33 @@
-// NOT MY CODE
+#ifndef LARGEST_M
+#define LARGEST_M
 
-#pragma once
-#include "HeapT.h"
+#include <iostream>
 #include <vector>
+#include "HeapT.h"
 
 template <typename T>
-std::vector<T> largestm(const std::vector<T>& vec, int m) {
-    int n = vec.size();
-    if (m <= 0) return {};
 
-    HeapT<T> minHeap(m);
-    for (int i = 0; i < n; ++i) {
-        if (i < m) {
-            minHeap.insert(vec[i]);
-        } else if (vec[i] > minHeap.peek()) {
-            minHeap.remove();
-            minHeap.insert(vec[i]);
+std::vector<T>  largestm(const std::vector<T>& array, int m){
+    std::vector<T> return_vec;
+    if( (array.size() != 0 ) && ( m > 0)){
+        if(m > array.size()){
+            m = array.size();
+        }
+        HeapT<T> myheap(m);     //cause of O(nlog(m))
+        for(int i {0}; i < m; i++){
+            myheap.insert(array[i]);
+        }
+        for (int i {m} ; i < array.size(); i++){
+            if ( myheap.peek() < array[i]){
+                myheap.remove();
+                myheap.insert(array[i]);
+            }
+        }
+        for(int i{0}; i < m; i++){
+            return_vec.insert(return_vec.begin(), myheap.remove());
         }
     }
-
-    std::vector<T> result;
-    while (minHeap.size() > 0) {
-        result.push_back(minHeap.remove());
-    }
-
-    // Reverse the result to get descending order
-    std::reverse(result.begin(), result.end());
-    return result;
+    return return_vec;
 }
+#endif
+

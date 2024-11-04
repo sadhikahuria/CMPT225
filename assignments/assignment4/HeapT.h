@@ -14,10 +14,10 @@ class HeapT
 {
     private:
         T *arr{nullptr};
-        unsigned int capacity{};
-        unsigned int count{};
+        int capacity{};
+        int count{0};
 
-        void bubbleup(unsigned int index){
+        void bubbleup(int index){
             int parent = (index-1)/2;
             if ((index >= 0) && (arr[parent] > arr[index])){
                 T temp = arr[index];
@@ -28,9 +28,9 @@ class HeapT
         }
 
         void bubbledown(int index){
-            unsigned int leftchild = (2*index) + 1;
-            unsigned int rightchild = (2*index) + 2;
-            unsigned int small{};
+            int leftchild = (2*index) + 1;
+            int rightchild = (2*index) + 2;
+            int small{};
             if ( leftchild < count ){
                 small = leftchild;
                 if ( rightchild < count){
@@ -41,7 +41,7 @@ class HeapT
                 if ( arr[small] < arr[index]){
                     T temp = arr[small];
                     arr[small] = arr[index];
-                    arr[index] = arr[small];
+                    arr[index] = temp;
                     bubbledown(small);
                 }
             }
@@ -50,9 +50,9 @@ class HeapT
     public:
         HeapT(int val): arr{new T[val]}, capacity{val} {};
         
-        HeapT(const Heap& other): arr{new T[other.capacity]}, capacity{other.capacity}{
-            arr = new T[other.capacity];
-            for(unsigned int i = 0; i < other.count; i++){
+        HeapT(const HeapT& other): arr{new T[other.capacity]}, capacity{other.capacity}{
+
+            for(int i = 0; i < other.count; i++){
                 insert(other.arr[i]);
             }
         }
@@ -73,7 +73,7 @@ class HeapT
                 arr = new T[other.capacity];
                 count = 0;
                 capacity = other.capacity;
-                for(unsigned int i = 0; i < other.count; i++){
+                for(int i = 0; i < other.count; i++){
                     insert(other.arr[i]);
                 }
             }
@@ -92,41 +92,43 @@ class HeapT
         }
 
         T remove(){
-            if((arr != nullptr) && ( count <= 0 )){
+            if((arr != nullptr) && ( count > 0 )){
                 T temp {arr[0]};
-                arr[0] = {arr[count-1]};
                 count--;
+                arr[0] = {arr[count]};
                 bubbledown(0);
+                return temp;
             } else {
                 throw std::runtime_error("Heap is empty.\n");
             }
         }   // throw a runtime error
         
-        T peek(){
-            if(arr != nullptr){
-                return *arr;
+        T peek() const{
+            if((arr != nullptr) && (count > 0)){
+                return arr[0];
+            } else {
+                throw std::runtime_error("Heap is empty.\n");
             }
         }    // throw a runtime error
         
-        HeapT& merge(const HeapT& other)
+        HeapT merge(const HeapT& other) const
         {
-            HeapT newheap(capacity + other.capcity);
-            if (count != 0){
-                for(unsigned int i{0}; i < count; i++){
-                    newheap.insert(arr[i]);
-                }
+            HeapT newheap( capacity + other.capacity );
+    
+            for(int i{0}; i < count; i++){
+                newheap.insert(arr[i]);
             }
-            if( other.count != 0){
-                for(unsigned int i{0}; i < other.count; i++){
-                    newheap.insert(other.arr[i]);
-                }
+            for(int i{0}; i < other.count; i++){
+                newheap.insert(other.arr[i]);
             }
-            return *newheap;
+
+            return newheap;
         }
 
-        unsigned int size(){
+        int size() const{
             return count;
         }
+
 };
 
 #endif
