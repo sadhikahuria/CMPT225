@@ -1,7 +1,8 @@
 #ifndef HEAP_T
 #define HEAP_T
 
-#include <iostream>>
+#include <iostream>
+#include <stdexcept>
 
 /* 
 does size refer to the size allocated by the array, or num
@@ -76,7 +77,7 @@ class HeapT
                     insert(other.arr[i]);
                 }
             }
-            return *this;
+            return *this;    
         }
         
         
@@ -126,9 +127,6 @@ class HeapT
         unsigned int size(){
             return count;
         }
-
-
-    
 };
 
 #endif
