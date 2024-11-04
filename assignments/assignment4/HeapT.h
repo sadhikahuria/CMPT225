@@ -28,7 +28,7 @@ class HeapT
 
         void bubbledown(int index){
             unsigned int leftchild = (2*index) + 1;
-            unsigned int rightchild = (2*index) + 2
+            unsigned int rightchild = (2*index) + 2;
             unsigned int small{};
             if ( leftchild < count ){
                 small = leftchild;
@@ -74,7 +74,19 @@ class HeapT
             deep copies, deallocates dynamic memory 
             */
         HeapT& operator=(const HeapT& other){
-
+            if( this != &other){
+                if(arr != nullptr){
+                    delete[] arr;
+                }
+                arr = new T{other.capacity};
+                count = 0;
+                capacity = other.capacity;
+                for(unsigned int i = 0; i < other.count; i++){
+                    arr[i] = other.arr[i];
+                    count++;
+                }
+            }
+            return *this;
         }
         
         
@@ -101,7 +113,22 @@ class HeapT
             }
         }    // throw a runtime error
         
-        HeapT& merge(const HeapT& other);
+        HeapT& merge(const HeapT& other)
+        {
+            HeapT newheap(capacity + other.capcity);
+            if (count != 0){
+                for(unsigned int i{0}; i < count; i++){
+                    newheap.insert(arr[i]);
+                }
+            }
+            if( other.count != 0){
+                for(unsigned int i{0}; i < other.count; i++){
+                    newheap.insert(other.arr[i]);
+                }
+            }
+            delete[] arr;
+            return *newheap;
+        }
 
         unsigned int size(){
             return count;
