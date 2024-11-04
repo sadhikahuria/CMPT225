@@ -37,7 +37,7 @@ class HeapT
                         small = rightchild;
                     }
                 }
-                if ( arr[small] > arr[index]){
+                if ( arr[small] < arr[index]){
                     T temp = arr[small];
                     arr[small] = arr[index];
                     arr[index] = arr[small];
@@ -47,21 +47,12 @@ class HeapT
         }
 
     public:
-        HeapT(int val): arr{new T{val}}, capacity{val} {};
+        HeapT(int val): arr{new T[val]}, capacity{val} {};
         
-        HeapT(const Heap& other){
-            if(arr != nullptr){
-                delete[] arr;
-                arr = nullptr;
-            }
-
-            if(other.arr != nullptr){
-                arr = new T{other.capacity};
-                capacity = other.capacity;
-                for(unsigned int i = 0; i < other.count; i++){
-                    arr[i] = other.arr[i];
-                    count++;
-                }
+        HeapT(const Heap& other): arr{new T[other.capacity]}, capacity{other.capacity}{
+            arr = new T[other.capacity];
+            for(unsigned int i = 0; i < other.count; i++){
+                insert(other.arr[i]);
             }
         }
 
@@ -78,32 +69,35 @@ class HeapT
                 if(arr != nullptr){
                     delete[] arr;
                 }
-                arr = new T{other.capacity};
+                arr = new T[other.capacity];
                 count = 0;
                 capacity = other.capacity;
                 for(unsigned int i = 0; i < other.count; i++){
-                    arr[i] = other.arr[i];
-                    count++;
+                    insert(other.arr[i]);
                 }
             }
             return *this;
         }
         
         
-        void insert(T newval){
+        void insert(const T& newval){
             if(count < capacity){
-                arr[count]={newval};
+                arr[count]= newval;
                 bubbleup(count);
                 count++;
+            } else{
+                throw std::runtime_error("Heap is Full.\n");
             }
         }
 
         T remove(){
-            if(root != nullptr){
+            if((arr != nullptr) && ( count <= 0 )){
                 T temp {arr[0]};
                 arr[0] = {arr[count-1]};
                 count--;
                 bubbledown(0);
+            } else {
+                throw std::runtime_error("Heap is empty.\n");
             }
         }   // throw a runtime error
         
@@ -126,7 +120,6 @@ class HeapT
                     newheap.insert(other.arr[i]);
                 }
             }
-            delete[] arr;
             return *newheap;
         }
 
