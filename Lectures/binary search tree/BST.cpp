@@ -48,7 +48,7 @@ Types of balanced BSTs
 
 ROTATIONS
     BST insert alogirthm
-    
+
 
     */
 
@@ -60,3 +60,13 @@ class avl_node{
         avl_node* right{nullptr};
         unsigned int height{};
 };
+
+/*
+AVL tree
+    height of left and right subtree differ by at most one
+    is also a binary search tree
+    
+    rebalancing happens through rotations
+    rotations
+
+*/

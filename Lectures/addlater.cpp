@@ -1,9 +1,0 @@
-/*
-AVL tree
-    height of left and right subtree differ by at most one
-    is also a binary search tree
-    
-    rebalancing happens through rotations
-    rotations
-
-*/
