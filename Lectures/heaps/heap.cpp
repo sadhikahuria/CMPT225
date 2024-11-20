@@ -66,18 +66,6 @@ Heap sort
     doesn't need additional memory
 
 
-HASH TABLES
-    maps, 
-        key and value
-        similar to dictionarys in python
-            int size()
-            void put(k,v)
-                overwrite if same key
-            bool contains(k)
-            get(key)
-            remove(key)
-    
-    rapid access
 
 
 
