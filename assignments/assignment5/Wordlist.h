@@ -8,54 +8,58 @@ using std::endl;
 
 class AVLTreeNode {
 public:
-	// Should have attributes named:
-	// parent - pointer to parent
-	// left - pointer to left child
-	// right - pointer to right child
-    AVLTreeNode *parent{nullptr};
-    AVLTreeNode *left{nullptr};
-    AVLTreeNode *right{nullptr};
-	// word - node's string data
-	// count - number of times the word appears
-	// height - node's height
-    unsigned int word{};
-    unsigned int count{};
-    unsigned int height{};
+string word;
+unsigned int count;
+unsigned int height;
+AVLTreeNode*parent;
+AVLTreeNode*left;
+AVLTreeNode*right;
 
-	// Constructors ...
-    AVLTreeNode(){};
-
+AVLTreeNode(const string &w):
+ word(w), count(1), height(0), parent(nullptr), left(nullptr), right(nullptr) {}
 };
 
 // Wordlist class
 class Wordlist
 {
 private:
-	// Class attributes go here
+	AVLTreeNode* root; 
+	unsigned int size;
+	//helper functions to keep the BST properties in check and for recursion 
+	unsigned int getheight(AVLTreeNode* node) const;
+    int getbalance(AVLTreeNode* node) const;
+    AVLTreeNode* leftrotation(AVLTreeNode* node);
+    AVLTreeNode* rightrotation(AVLTreeNode* node);
+    AVLTreeNode* balancenode(AVLTreeNode* node);
+    AVLTreeNode* insertnode(AVLTreeNode* node, const string& word);
+    AVLTreeNode* removenode(AVLTreeNode* node, const string& word);
+    AVLTreeNode* smallestnode(AVLTreeNode* node) const;
+	void printwordshelper(AVLTreeNode* node) const;
+    void copytree(AVLTreeNode*& newRoot, AVLTreeNode* oldRoot, AVLTreeNode* parent);
+    void deletetree(AVLTreeNode* node);
+    int countotalwords(AVLTreeNode* node) const;
+    AVLTreeNode* findmostfrequent(AVLTreeNode* node, AVLTreeNode*& mostFrequent) const;
+    int countsingletons(AVLTreeNode* node) const;
+	
+	void mostfrequenthelper(AVLTreeNode* node, int& maxCount, string& frequentWord) const;
 
-	// Your class MUST have a root node named root (below)
-	AVLTreeNode* root; // DO NOT REMOVE
 
 public:
-	// public methods go here
-    Wordlist();
-    Wordlist(string file1);
-    Wordlist(Wordlist &list);
-    Wordlist& operator=(const Wordlist &other);
-    ~Wordlist();
-    unsigned getCount();
-    bool contains(string word);
-    void insert();
-    bool remove(string word);
-    unsigned int differentWords();
-    unsigned int totalwords();
-    string mostFrequent();
-    unsigned int singletons();
-    void printWords();
-    
-	// Prints useful statistics about the word list
+	Wordlist();
+	Wordlist(const Wordlist& other);
+	Wordlist& operator=(const Wordlist& other);
+	Wordlist(const string& filename);
+	~Wordlist();
+	void insert(const string& word);
+	bool remove(const string& word);
+	int getCount(const string& word) const;
+	bool contains(const string& word) const;
+	int differentWords() const {return size;}
+	int totalWords() const;
+	string  mostFrequent() const;
+	int singletons() const;
 	void printStatistics() const;
-
-	// Returns the root of the AVL tree
+	void printWords() const;
 	AVLTreeNode* getRoot() const { return root; }; // DO NOT REMOVE
+	void printTreeStructure(AVLTreeNode* node, int level) const;
 };
