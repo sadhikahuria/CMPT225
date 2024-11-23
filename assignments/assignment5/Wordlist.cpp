@@ -1,4 +1,4 @@
-#include "Wordlist.h"
+#include "Wordlists.h"
 #include <iomanip>
 #include <iostream>
 #include <stdexcept>
@@ -8,9 +8,9 @@ using std::setprecision;
 using namespace std;
 
 // Constructor
-Wordlist::Wordlist():root(nullptr), size(0){}
+Wordlist::Wordlist() : root(nullptr), size(0) {}
 
-// Constructor for the file to read and edit 
+// Constructor for reading from a file
 Wordlist::Wordlist(const string& filename) : root(nullptr), size(0) {
     ifstream file(filename);
     if (!file.is_open()) {
@@ -18,28 +18,255 @@ Wordlist::Wordlist(const string& filename) : root(nullptr), size(0) {
     }
     string word;
     while (file >> word) {
-        insert(word); 
+        insert(word);
     }
     file.close();
 }
 
-// Copy Constructor 
-Wordlist:: Wordlist(const Wordlist& other): root(nullptr), size(0){
-	copytree(root, other.root, nullptr);
-	this -> size = other.size;
+// Copy Constructor
+Wordlist::Wordlist(const Wordlist& other) : root(nullptr), size(0) {
+    copyTreeStructure(root, other.root, nullptr);
+    this->size = other.size;
 }
 
 // Assignment Operator
-Wordlist& Wordlist:: operator=(const Wordlist& other){
-	if(this == &other) return*this;
-	deletetree(root);
-	copytree(root, other.root, nullptr);
-	size = other.size;
-	return*this;
+Wordlist& Wordlist::operator=(const Wordlist& other) {
+    if (this == &other) return *this;
+    deleteTreeStructure(root);
+    copyTreeStructure(root, other.root, nullptr);
+    size = other.size;
+    return *this;
 }
 
-//copytree
-void Wordlist::copytree(AVLTreeNode*& newRoot, AVLTreeNode* oldRoot, AVLTreeNode* parent) {
+// Destructor
+Wordlist::~Wordlist() {
+    deleteTreeStructure(root);
+}
+
+// Insert a word into the AVL tree
+void Wordlist::insert(const string& word) {
+    root = addWordNode(root, word);
+}
+
+// Remove a word from the AVL tree
+bool Wordlist::remove(const string& word) {
+    int initialSize = size;
+    root = removeWordNode(root, word);
+    return size < initialSize;
+}
+
+// Get the count of a word
+int Wordlist::getCount(const string& word) const {
+    AVLTreeNode* current = root;
+    while (current) {
+        if (word == current->word) {
+            return current->count;
+        } else if (word < current->word) {
+            current = current->left;
+        } else {
+            current = current->right;
+        }
+    }
+    return 0;
+}
+
+// Check if a word exists in the AVL tree
+bool Wordlist::contains(const string& word) const {
+    return getCount(word) > 0;
+}
+
+// Get the total number of words in the AVL tree
+int Wordlist::totalWords() const {
+    return calculateTotalWords(root);
+}
+
+// Find the most frequent word in the AVL tree
+string Wordlist::mostFrequent() const {
+    if (!root) throw invalid_argument("Tree is empty");
+    AVLTreeNode* mostFrequentNode = nullptr;
+    findMostFrequentNode(root, mostFrequentNode);
+    return mostFrequentNode->word + " " + to_string(mostFrequentNode->count);
+}
+
+// Get the count of singletons (words with frequency 1)
+int Wordlist::singletons() const {
+    return countSingletonNodes(root);
+}
+
+// Print statistics about the AVL tree
+void Wordlist::printStatistics() const {
+    cout << "Number of different words: " << differentWords() << endl;
+    cout << "    Total number of words: " << totalWords() << endl;
+    cout << "       Most frequent word: " << mostFrequent() << endl;
+    cout << "     Number of singletons: " << singletons()
+         << setprecision(0) << fixed
+         << " (" << 100.0 * singletons() / differentWords() << "%)"
+         << endl;
+}
+
+// Print all words in the AVL tree
+void Wordlist::printWords() const {
+    displayWordsHelper(root);
+}
+
+// Helper Functions (Private)
+
+// Calculate the height of a node
+unsigned int Wordlist::calculateHeight(AVLTreeNode* node) const {
+    return node ? node->height : 0;
+}
+
+// Calculate the balance factor of a node
+int Wordlist::calculateBalance(AVLTreeNode* node) const {
+    return node ? static_cast<int>(calculateHeight(node->left)) - static_cast<int>(calculateHeight(node->right)) : 0;
+}
+
+// Perform a left rotation
+AVLTreeNode* Wordlist::performLeftRotation(AVLTreeNode* node) {
+    AVLTreeNode* newRoot = node->right;
+    node->right = newRoot->left;
+    if (newRoot->left) newRoot->left->parent = node;
+    newRoot->left = node;
+    newRoot->parent = node->parent;
+    if (node->parent) {
+        if (node->parent->left == node)
+            node->parent->left = newRoot;
+        else
+            node->parent->right = newRoot;
+    }
+    node->parent = newRoot;
+    node->height = 1 + max(calculateHeight(node->left), calculateHeight(node->right));
+    newRoot->height = 1 + max(calculateHeight(newRoot->left), calculateHeight(newRoot->right));
+    return newRoot;
+}
+
+// Perform a right rotation
+AVLTreeNode* Wordlist::performRightRotation(AVLTreeNode* node) {
+    AVLTreeNode* newRoot = node->left;
+    node->left = newRoot->right;
+    if (newRoot->right) newRoot->right->parent = node;
+    newRoot->right = node;
+    newRoot->parent = node->parent;
+    if (node->parent) {
+        if (node->parent->left == node)
+            node->parent->left = newRoot;
+        else
+            node->parent->right = newRoot;
+    }
+    node->parent = newRoot;
+    node->height = 1 + max(calculateHeight(node->left), calculateHeight(node->right));
+    newRoot->height = 1 + max(calculateHeight(newRoot->left), calculateHeight(newRoot->right));
+    return newRoot;
+}
+
+// Balance a node in the AVL tree
+AVLTreeNode* Wordlist::balanceAVLNode(AVLTreeNode* node) {
+    int balance = calculateBalance(node);
+    if (balance > 1) {
+        if (calculateBalance(node->left) < 0) {
+            node->left = performLeftRotation(node->left);
+        }
+        return performRightRotation(node);
+    }
+    if (balance < -1) {
+        if (calculateBalance(node->right) > 0) {
+            node->right = performRightRotation(node->right);
+        }
+        return performLeftRotation(node);
+    }
+    return node;
+}
+
+// Add a word to the AVL tree (helper)
+AVLTreeNode* Wordlist::addWordNode(AVLTreeNode* node, const string& word) {
+    if (!node) {
+        size++;
+        return new AVLTreeNode(word);
+    }
+    if (word < node->word) {
+        node->left = addWordNode(node->left, word);
+        node->left->parent = node;
+    } else if (word > node->word) {
+        node->right = addWordNode(node->right, word);
+        node->right->parent = node;
+    } else {
+        node->count++;
+        return node;
+    }
+    node->height = 1 + max(calculateHeight(node->left), calculateHeight(node->right));
+    return balanceAVLNode(node);
+}
+
+// Remove a word from the AVL tree (helper)
+AVLTreeNode* Wordlist::removeWordNode(AVLTreeNode* node, const string& word) {
+    if (!node) return nullptr;
+    if (word < node->word) {
+        node->left = removeWordNode(node->left, word);
+    } else if (word > node->word) {
+        node->right = removeWordNode(node->right, word);
+    } else {
+        if (node->count > 1) {
+            node->count--;
+            return node;
+        }
+        if (!node->left && !node->right) {
+            delete node;
+            size--;
+            return nullptr;
+        }
+        if (!node->left || !node->right) {
+            AVLTreeNode* child = node->left ? node->left : node->right;
+            child->parent = node->parent;
+            delete node;
+            size--;
+            return child;
+        }
+        AVLTreeNode* successor = findSmallestNode(node->right);
+        node->word = successor->word;
+        node->count = successor->count;
+        successor->count = 1;
+        node->right = removeWordNode(node->right, successor->word);
+    }
+    node->height = 1 + max(calculateHeight(node->left), calculateHeight(node->right));
+    return balanceAVLNode(node);
+}
+
+// Find the smallest node (helper)
+AVLTreeNode* Wordlist::findSmallestNode(AVLTreeNode* node) const {
+    AVLTreeNode* current = node;
+    while (current && current->left) {
+        current = current->left;
+    }
+    return current;
+}
+
+// Recursively calculate the total number of words
+int Wordlist::calculateTotalWords(AVLTreeNode* node) const {
+    if (!node) return 0;
+    return node->count + calculateTotalWords(node->left) + calculateTotalWords(node->right);
+}
+
+// Find the most frequent word node (helper)
+AVLTreeNode* Wordlist::findMostFrequentNode(AVLTreeNode* node, AVLTreeNode*& mostFrequent) const {
+    if (!node) return mostFrequent;
+    if (!mostFrequent || node->count > mostFrequent->count) {
+        mostFrequent = node;
+    }
+    findMostFrequentNode(node->left, mostFrequent);
+    findMostFrequentNode(node->right, mostFrequent);
+    return mostFrequent;
+}
+
+// Count the number of singletons
+int Wordlist::countSingletonNodes(AVLTreeNode* node) const {
+    if (!node) return 0;
+    int left = countSingletonNodes(node->left);
+    int right = countSingletonNodes(node->right);
+    return (node->count == 1 ? 1 : 0) + left + right;
+}
+
+// Copy the AVL tree
+void Wordlist::copyTreeStructure(AVLTreeNode*& newRoot, AVLTreeNode* oldRoot, AVLTreeNode* parent) {
     if (!oldRoot) {
         newRoot = nullptr;
         return;
@@ -48,282 +275,22 @@ void Wordlist::copytree(AVLTreeNode*& newRoot, AVLTreeNode* oldRoot, AVLTreeNode
     newRoot->count = oldRoot->count;
     newRoot->height = oldRoot->height;
     newRoot->parent = parent;
-    copytree(newRoot->left, oldRoot->left, newRoot);
-    copytree(newRoot->right, oldRoot->right, newRoot);
+    copyTreeStructure(newRoot->left, oldRoot->left, newRoot);
+    copyTreeStructure(newRoot->right, oldRoot->right, newRoot);
 }
 
-
-// Destructor
-Wordlist::~Wordlist(){
-	deletetree(root);
-}
-
-// insertion for AVL tree
-void Wordlist:: insert(const string& word){
-	root = insertnode(root, word);
-}
-
-// removal for AVL tree
-bool Wordlist::remove(const string& word){
-	int initialsize= size;
-	root = removenode(root, word);
-	return size < initialsize;
-}
-
-//getcount function
-int Wordlist::getCount(const string& word) const {
-    AVLTreeNode* current = root;
-    while (current) {
-        if (word == current->word) {
-            return current->count; // Return the count if the word is found
-        } else if (word < current->word) {
-            current = current->left; // Traverse left subtree
-        } else {
-            current = current->right; // Traverse right subtree
-        }
-    }
-    return 0; // Word not found
-}
-//contains used with getCount
-bool Wordlist::contains(const string& word) const {
-    return getCount(word) > 0; // If the count is greater than 0, the word exists
-}
-
-// differentWords, already implemented in header file.
-
-// to get the total word count
-int Wordlist:: totalWords() const{
-	return countotalwords(root);
-}
-
-//mostFrequent
-string Wordlist::mostFrequent() const {
-    if (!root) throw invalid_argument("Tree is empty");
-    AVLTreeNode* mostFrequentNode = nullptr;
-    findmostfrequent(root, mostFrequentNode);
-    return mostFrequentNode->word + " " + std::to_string(mostFrequentNode->count);
-}
-//used with a helper functionn
-AVLTreeNode* Wordlist::findmostfrequent(AVLTreeNode* node, AVLTreeNode*& mostFrequent) const {
-    if (!node) return mostFrequent;
-    if (!mostFrequent || node->count > mostFrequent->count) {
-        mostFrequent = node;
-    }
-	findmostfrequent(node->left, mostFrequent);
-    findmostfrequent(node->right, mostFrequent);
-    return mostFrequent;
-}
-
-//signletons
-int Wordlist::singletons() const {
-    return countsingletons(root);
-}
-//using the helper function countingsingletons
-int Wordlist::countsingletons(AVLTreeNode* node) const {
-    if (!node) return 0;
-    int left = countsingletons(node->left);
-    int right = countsingletons(node->right);
-    return (node->count == 1 ? 1 : 0) + left + right;
-}
-
-// Prints useful statistics about the word list
-void Wordlist::printStatistics() const
-{
-	cout << "Number of different words: " << differentWords() << endl;
-	cout << "    Total number of words: " << totalWords() << endl;
-	cout << "       Most frequent word: " << mostFrequent() << endl;
-	cout << "     Number of singletons: " << singletons()
-		<< setprecision(0) << fixed
-		<< " (" << 100.0 * singletons() / differentWords() << "%)"
-		<< endl;
-}
-
-//printWords
-void Wordlist::printWords() const {
-    printwordshelper(root);
-}
-//helper function 
-void Wordlist::printwordshelper(AVLTreeNode* node) const {
+// Delete the AVL tree
+void Wordlist::deleteTreeStructure(AVLTreeNode* node) {
     if (!node) return;
-    printwordshelper(node->left);
-    cout << node->word << " " << node->count << endl; // Display word and count
-    printwordshelper(node->right);
+    deleteTreeStructure(node->left);
+    deleteTreeStructure(node->right);
+    delete node;
 }
 
-//getRoot, already implemented in header file.
-
-//private
-//insertion with recursion helper functions 
-AVLTreeNode* Wordlist:: insertnode(AVLTreeNode*node, const string& word){
-	if(!node){// when the node is null
-		size++;
-		return new AVLTreeNode(word);
-	}
-	//recursively insert in the tree
-	if(word < node->word){// when the word is less than the root, it goes to left
-		node->left = insertnode(node->left, word);
-		node->left->parent = node;
-	}
-	if (word>node->word){// when the word is greater than root, it goes to right
-		node->right = insertnode(node->right, word);
-		node->right->parent = node;
-	}
-	else{// when the word already exists, we just increase the count
-		node->count++;
-		return node;
-	}
-	node -> height = 1 + max(getheight(node->left), getheight(node->right));
-	return balancenode(node);
-}
-
-//deletion with recursion helper functions
-AVLTreeNode* Wordlist:: removenode(AVLTreeNode* node, const string& word){
-	if(!node){
-		return nullptr;
-	}
-	if (word< node-> word){
-		node->left = removenode(node->left, word);
-	}
-	else if(word>node->word){
-		node->right = removenode(node->right, word);
-	}
-	else{
-		if(node-> count>1){
-			node->count--;
-			return node;
-		}
-		//when the node has no child or is only a leaf
-		if(!node->left && !node->right){
-			delete node;
-			size--;
-			return nullptr;
-		}
-		//this is for when there is only one child
-		if(!node->left || !node->right){
-			AVLTreeNode* child = node->left ? node->left : node->right;
-            child->parent = node->parent;
-            delete node;
-            size--;
-            return child;
-		}
-		// when the node has 2 children, so we choose the successor here using in order traversal or by choosing the smallest in right subtree
-		AVLTreeNode* successor = smallestnode(node->right);
-		node->word = successor->word;
-		node->count = successor->count;
-		successor->count = 1;
-		node->right = removenode(node->right, successor->word);
-	}
-	node->height = 1 + max(getheight(node->left), getheight(node->right));
-	return balancenode(node);
-}
-
-
-//balancing helper function 
-AVLTreeNode* Wordlist:: balancenode(AVLTreeNode*node){
-	int balance= getbalance(node);
-	
-	//left unbalanced 
-	if (balance>1){//LR rotation
-		if (getbalance(node->left)<0){
-			node->left = leftrotation(node->left);
-		}
-		return rightrotation(node);//LL rotation 
-	}
-	//right unbalanced
-	if(balance<-1){//RL rotation
-		if(getbalance(node->right)>0){
-			node->right = rightrotation(node->right);
-		}
-		return leftrotation(node);//RR rotation
-	}
-	return node;//when the tree is balanced
-}
-
-//left rotation
-AVLTreeNode* Wordlist::leftrotation(AVLTreeNode* node) {
-    AVLTreeNode* newRoot = node->right;
-    node->right = newRoot->left;
-    if (newRoot->left) newRoot->left->parent = node;
-    newRoot->left = node;
-    newRoot->parent = node->parent;
-	if (node->parent) {
-        if (node->parent->left == node) // Update parent's child pointer
-            node->parent->left = newRoot;
-        else
-            node->parent->right = newRoot;
-    }
-	node->parent = newRoot;
-    node->height = 1 + max(getheight(node->left), getheight(node->right));
-    newRoot->height = 1 + max(getheight(newRoot->left), getheight(newRoot->right));
-    return newRoot;
-
-}
-
-//right rotation 
-AVLTreeNode* Wordlist::rightrotation(AVLTreeNode* node) {
-    AVLTreeNode* newRoot = node->left;
-    node->left = newRoot->right;
-    if (newRoot->right) newRoot->right->parent = node;
-    newRoot->right = node;
-    newRoot->parent = node->parent;
-	if (node->parent) {
-        if (node->parent->left == node) // Update parent's child pointer
-            node->parent->left = newRoot;
-        else
-            node->parent->right = newRoot;
-    }
-	node->parent = newRoot;
-    node->height = 1 + max(getheight(node->left), getheight(node->right));
-    newRoot->height = 1 + max(getheight(newRoot->left), getheight(newRoot->right));
-    return newRoot;
-}
-
-//delete tree recursively
-void Wordlist:: deletetree(AVLTreeNode*node){
-	if(!node) return;
-	deletetree(node->left);
-	deletetree(node->right);
-	delete node;
-	node = nullptr;
-}
-
-//height of a node
-unsigned int Wordlist :: getheight(AVLTreeNode*node) const{
-	if(node){
-		return node-> height;
-	}
-	return 0;
-}
-
-//get the balance factor 
-int Wordlist::getbalance(AVLTreeNode*node) const{
-	if (node){
-		return (int)getheight(node->left)-(int)getheight(node->right);
-	}
-	else{
-		return 0;
-	}
-}
-
-//get the smallest node for in order tranveral
-AVLTreeNode*Wordlist:: smallestnode(AVLTreeNode*node) const{
-	AVLTreeNode*current = node;
-	while(current && current -> left){
-		current = current ->left;
-	}
-	return current;
-}
-
-//count total number of words
-int Wordlist::countotalwords(AVLTreeNode* node) const {
-    if (!node) return 0;
-    return node->count + countotalwords(node->left) + countotalwords(node->right);
-}
-
-void Wordlist::printTreeStructure(AVLTreeNode* node, int level = 0) const {
-    if (node == nullptr) return;
-
-    printTreeStructure(node->right, level + 1);  // Print right subtree
-    cout << string(4 * level, ' ') << node->word << " (" << node->count << ")\n";
-    printTreeStructure(node->left, level + 1);   // Print left subtree
+// Helper to print words in order
+void Wordlist::displayWordsHelper(AVLTreeNode* node) const {
+    if (!node) return;
+    displayWordsHelper(node->left);
+    cout << node->word << " " << node->count << endl;
+    displayWordsHelper(node->right);
 }
